@@ -1,0 +1,9 @@
+DynamicLinqPadPostgreSqlDriver/obj/
+packages/
+DynamicLinqPadPostgreSqlDriver/bin/
+DynamicLinqPadPostgreSqlDriver.UI/obj/
+DynamicLinqPadPostgreSqlDriver.UI/bin/
+DynamicLinqPadPostgreSqlDriver.Shared/obj/
+DynamicLinqPadPostgreSqlDriver.Shared/bin/
+DynamicLinqPadPostgreSqlDriver.Tests/obj/
+DynamicLinqPadPostgreSqlDriver.Tests/bin/

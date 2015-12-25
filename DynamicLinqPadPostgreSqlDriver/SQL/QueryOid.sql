@@ -1,0 +1,1 @@
+﻿SELECT @TableName::regclass::oid "Oid";

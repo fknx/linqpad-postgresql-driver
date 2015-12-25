@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicLinqPadPostgreSqlDriver", "DynamicLinqPadPostgreSqlDriver\DynamicLinqPadPostgreSqlDriver.csproj", "{824F300B-F0F9-4994-9097-B1B2270BE12F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicLinqPadPostgreSqlDriver.UI", "DynamicLinqPadPostgreSqlDriver.UI\DynamicLinqPadPostgreSqlDriver.UI.csproj", "{3EB619ED-0BEE-44CF-963F-15BF45979CA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicLinqPadPostgreSqlDriver.Shared", "DynamicLinqPadPostgreSqlDriver.Shared\DynamicLinqPadPostgreSqlDriver.Shared.csproj", "{8D343A09-D0DF-4C9E-B8FD-BDEB70CF7097}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DynamicLinqPadPostgreSqlDriver.Tests", "DynamicLinqPadPostgreSqlDriver.Tests\DynamicLinqPadPostgreSqlDriver.Tests.csproj", "{E04B12BF-0D89-40DB-8A9C-B5FA095A3F39}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{824F300B-F0F9-4994-9097-B1B2270BE12F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{824F300B-F0F9-4994-9097-B1B2270BE12F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{824F300B-F0F9-4994-9097-B1B2270BE12F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{824F300B-F0F9-4994-9097-B1B2270BE12F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EB619ED-0BEE-44CF-963F-15BF45979CA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EB619ED-0BEE-44CF-963F-15BF45979CA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EB619ED-0BEE-44CF-963F-15BF45979CA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EB619ED-0BEE-44CF-963F-15BF45979CA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D343A09-D0DF-4C9E-B8FD-BDEB70CF7097}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D343A09-D0DF-4C9E-B8FD-BDEB70CF7097}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D343A09-D0DF-4C9E-B8FD-BDEB70CF7097}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D343A09-D0DF-4C9E-B8FD-BDEB70CF7097}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E04B12BF-0D89-40DB-8A9C-B5FA095A3F39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E04B12BF-0D89-40DB-8A9C-B5FA095A3F39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E04B12BF-0D89-40DB-8A9C-B5FA095A3F39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E04B12BF-0D89-40DB-8A9C-B5FA095A3F39}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

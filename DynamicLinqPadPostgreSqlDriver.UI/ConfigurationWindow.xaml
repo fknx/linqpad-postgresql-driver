@@ -1,0 +1,77 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI"
+        xmlns:ViewModels="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI.ViewModels" x:Class="DynamicLinqPadPostgreSqlDriver.UI.ConfigurationWindow"
+        mc:Ignorable="d"
+        x:ClassModifier="internal" Title="PostgreSQL Connection" Height="450" Width="550"
+        xmlns:xc="clr-namespace:ExCastle.Wpf" xc:DialogCloser.DialogResult="{Binding DialogResult}" WindowStartupLocation="CenterScreen">
+   <Window.DataContext>
+      <ViewModels:ConnectionInfoViewModel/>
+   </Window.DataContext>
+   <Grid>
+      <Grid.RowDefinitions>
+         <RowDefinition Height="20*"/>
+         <RowDefinition Height="10*"/>
+         <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+         <ColumnDefinition Width="Auto"/>
+         <ColumnDefinition/>
+         <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Button x:Name="cancelButton" Content="_Cancel" Grid.Column="2" Margin="5,5,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="2" IsCancel="True" IsDefault="True" Height="24" TabIndex="13"/>
+      <Button x:Name="saveButton" Content="_Save" HorizontalAlignment="Right" Margin="0,5,5,10" Grid.Row="2" Width="75" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanSave}" Command="{Binding SaveCommand, Mode=OneWay}" Height="24" TabIndex="12"/>
+      <Grid x:Name="connectionInfoGrid" Margin="0" Grid.ColumnSpan="3">
+         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+         </Grid.ColumnDefinitions>
+         <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="80"/>
+         </Grid.RowDefinitions>
+         <Label Content="Name" HorizontalAlignment="Left" d:LayoutOverrides="Height" VerticalAlignment="Center" Margin="10,0,5,0"/>
+         <Label Content="Server" HorizontalAlignment="Left" Grid.Row="2" d:LayoutOverrides="Height" Margin="30,0,5,0" VerticalAlignment="Center"/>
+         <Label Content="Username" HorizontalAlignment="Left" Grid.Row="3" Margin="30,0,5,0" d:LayoutOverrides="Height" VerticalAlignment="Center"/>
+         <Label Content="Password" HorizontalAlignment="Left" Grid.Row="4" d:LayoutOverrides="Height" VerticalAlignment="Center" Margin="30,0,5,0"/>
+         <TextBox x:Name="nameTextBox" TextWrapping="Wrap" Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0" TabIndex="0"/>
+         <TextBox x:Name="serverTextBox" TextWrapping="Wrap" Text="{Binding Server, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0" Grid.Row="2" IsEnabled="{Binding UseConnectionInfo}" TabIndex="2"/>
+         <TextBox x:Name="usernameTextBox" TextWrapping="Wrap" Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" VerticalAlignment="Center" Margin="5,0,10,0" Grid.Row="3" IsEnabled="{Binding UseConnectionInfo}" TabIndex="3"/>
+         <TextBox x:Name="connectionStringTextBox" Margin="36,5,10,5" Grid.Row="7" TextWrapping="Wrap" Text="{Binding ConnectionString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" d:LayoutOverrides="Height" IsEnabled="{Binding UseConnectionString}" TabIndex="7"/>
+         <RadioButton x:Name="useConnectionInfoRadioButton" Content="Use connection info" Grid.Row="1" d:LayoutOverrides="Width, Height" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="15,5,0,5" Grid.ColumnSpan="2" GroupName="Connection" IsChecked="{Binding UseConnectionInfo}" TabIndex="1"/>
+         <RadioButton x:Name="useConnectionStringRadioButton" Content="Use connection string" Margin="15,5,10,5" Grid.Row="6" d:LayoutOverrides="Width, Height" VerticalAlignment="Center" Grid.ColumnSpan="2" HorizontalAlignment="Left" GroupName="Connection" IsChecked="{Binding UseConnectionString}" TabIndex="6"/>
+         <PasswordBox x:Name="passwordBox" Grid.Column="1" Grid.Row="4" VerticalAlignment="Center" Margin="5,0,10,0" IsEnabled="{Binding UseConnectionInfo}" TabIndex="4"/>
+         <Label Content="Database" HorizontalAlignment="Left" Grid.Row="5" Margin="30,0,5,0" d:LayoutOverrides="Height"/>
+         <TextBox x:Name="databaseTextBox" TextWrapping="Wrap" Text="{Binding Database, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5,0,10,0" Grid.Row="5" d:LayoutOverrides="Height" VerticalAlignment="Center" IsEnabled="{Binding UseConnectionInfo}" TabIndex="5"/>
+      </Grid>
+      <Button x:Name="testConnectionButton" Content="_Test Connection" Margin="10,5,5,10" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" IsEnabled="{Binding CanSave}" Command="{Binding TestConnectionCommand, Mode=OneWay}" Height="24" Width="90" TabIndex="11"/>
+      <Grid Grid.Row="1" Grid.ColumnSpan="3">
+         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="0*"/>
+         </Grid.RowDefinitions>
+         <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+         </Grid.ColumnDefinitions>
+         <Label Content="Options" HorizontalAlignment="Left" d:LayoutOverrides="Height" VerticalAlignment="Center" Margin="10,0,0,0"/>
+         <CheckBox x:Name="pluralizeSetAndTablePropertiesCheckBox" Content="Pluralize set and table properties" HorizontalAlignment="Left" Grid.Row="1" d:LayoutOverrides="Height" VerticalAlignment="Center" Margin="35,2,0,2" Grid.ColumnSpan="2" IsChecked="{Binding PluralizeSetAndTableProperties}" TabIndex="8"/>
+         <CheckBox x:Name="singularizeEntityNamesCheckBox" Content="Singularize entity names" HorizontalAlignment="Left" Grid.Row="2" d:LayoutOverrides="Height" VerticalAlignment="Center" Margin="35,2,0,2" Grid.ColumnSpan="2" IsChecked="{Binding SingularizeEntityNames}" TabIndex="9"/>
+         <CheckBox x:Name="capitalizePropertyNamesCheckBox" Content="Capitalize properties, tables and columns" HorizontalAlignment="Left" Margin="35,2,0,2" Grid.Row="3" d:LayoutOverrides="Height" VerticalAlignment="Center" Grid.ColumnSpan="2" IsChecked="{Binding CapitalizePropertiesTablesAndColumns}" TabIndex="10"/>
+         <CheckBox x:Name="useAdvancedDataTypesCheckBox" Content="Use experimental data types" HorizontalAlignment="Left" Margin="35,1.999,-0.302,2" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding UseAdvancedDataTypes}" TabIndex="10"/>
+      </Grid>
+   </Grid>
+</Window>
