@@ -1,1 +1,1 @@
-﻿SELECT @TableName::regclass::oid "Oid";
+﻿SELECT @TableName::regclass::oid AS "Oid";
