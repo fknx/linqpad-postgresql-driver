@@ -9,13 +9,13 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests
 {
    public class TestBase : IDisposable
    {
-      private const string ConnectionString = "Server=localhost;Port=5432;Database=TestDb;User Id=postgres;Password=postgres;";
+      private const string ConnectionString = "Server=localhost;Port=5433;Database=TestDb;User Id=postgres;Password=postgres;";
 
       protected const string CreateTableStatement = "CREATE TABLE TestTable (TestColumn {0});";
-      protected const string GetColumnsStatement = "SELECT column_name \"ColumnName\", is_nullable \"Nullable\", data_type \"DataType\", udt_name \"UdtName\" FROM information_schema.columns WHERE table_catalog = 'TestDb' AND table_name ilike 'TestTable' ORDER BY ordinal_position;";
+      protected const string GetColumnsStatement = "SELECT column_name AS \"ColumnName\", is_nullable AS \"Nullable\", data_type AS \"DataType\", udt_name AS \"UdtName\" FROM information_schema.columns WHERE table_catalog = 'TestDb' AND table_name ilike 'TestTable' ORDER BY ordinal_position;";
 
       protected const string InsertStatement = "INSERT INTO TestTable VALUES (@Value);";
-      protected const string SelectStatement = "SELECT TestColumn \"Value\" FROM TestTable;";
+      protected const string SelectStatement = "SELECT TestColumn AS \"Value\" FROM TestTable;";
 
       protected IDbConnection DBConnection { get; }
 
