@@ -64,6 +64,9 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\VersionInfo.cs">
+      <Link>VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Helpers\DelegatingCommand.cs" />
     <Compile Include="Helpers\DialogCloser.cs" />
     <Compile Include="UIHelper.cs" />
