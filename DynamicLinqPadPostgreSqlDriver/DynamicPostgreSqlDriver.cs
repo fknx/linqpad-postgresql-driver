@@ -99,7 +99,7 @@ namespace DynamicLinqPadPostgreSqlDriver
 
                var preparedTables = new List<TableData>();
                
-               foreach(var table in group)
+               foreach(var table in group.OrderBy(t => t.TableName))
                {
                   var unmodifiedTableName = (string)table.TableName;
                   var tableName = cxInfo.GetTableName(unmodifiedTableName);
