@@ -50,10 +50,14 @@ namespace DynamicLinqPadPostgreSqlDriver.Shared.Extensions
 
          sb.AppendFormat("Database={0};", database);
 
-         if (!string.IsNullOrWhiteSpace(userName) && !string.IsNullOrWhiteSpace(password))
+         if (!string.IsNullOrWhiteSpace(userName))
          {
             sb.AppendFormat("User Id={0};", userName);
-            sb.AppendFormat("Password={0};", password);
+
+             if (!string.IsNullOrWhiteSpace(password))
+             {
+                 sb.AppendFormat("Password={0};", password);
+             }
          }
          else
          {
