@@ -13,13 +13,25 @@ namespace DynamicLinqPadPostgreSqlDriver
       protected IEnumerable<T> ResolveOneToMany<T>(string propertyName) where T : class
       {
          var queryData = PrepareQuery<T>(propertyName);
-         return queryData != null ? queryData.Table.Where(queryData.Query) : Enumerable.Empty<T>();
+         if (queryData == null)
+            return Enumerable.Empty<T>();
+
+         using (queryData.DataContext)
+         {
+            return queryData.Table.Where(queryData.Query).ToArray();
+         }
       }
 
       protected T ResolveManyToOne<T>(string propertyName) where T : class
       {
          var queryData = PrepareQuery<T>(propertyName);
-         return queryData != null ? queryData.Table.SingleOrDefault(queryData.Query) : default(T);
+         if (queryData == null)
+            return default(T);
+
+         using (queryData.DataContext)
+         {
+            return queryData.Table.SingleOrDefault(queryData.Query);
+         }
       }
 
       private QueryData<T> PrepareQuery<T>(string propertyName) where T : class
@@ -35,7 +47,7 @@ namespace DynamicLinqPadPostgreSqlDriver
          if (association == null)
             throw new Exception($"The property '{propertyName}' does not represent an association.");
 
-         var dataContext = TypedDataContextBase.Instance;
+         var dataContext = TypedDataContextBase.CreateNewInstance();
          if (dataContext == null)
             throw new Exception("No data context available.");
 
@@ -74,7 +86,7 @@ namespace DynamicLinqPadPostgreSqlDriver
          var equalsExpression = Expression.Equal(fieldExpression, keyExpression);
 
          // create & compile query
-         return new QueryData<T>(table, Expression.Lambda<Func<T, bool>>(equalsExpression, parameter).Compile());
+         return new QueryData<T>(dataContext, table, Expression.Lambda<Func<T, bool>>(equalsExpression, parameter).Compile());
       }
 
       private FieldInfo GetFieldByColumnName(Type type, string columnName)
@@ -88,12 +100,15 @@ namespace DynamicLinqPadPostgreSqlDriver
 
       private class QueryData<T>
       {
+         public IDataContext DataContext { get; }
+
          public ITable<T> Table { get; }
 
          public Func<T, bool> Query { get; }
 
-         public QueryData(ITable<T> table, Func<T, bool> query)
+         public QueryData(IDataContext dataContext, ITable<T> table, Func<T, bool> query)
          {
+            DataContext = dataContext;
             Table = table;
             Query = query;
          }
