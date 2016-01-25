@@ -13,7 +13,8 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          var typedEnumerableType = typeof(IEnumerable<>).MakeGenericType(table.TypeBuilder);
 
          // use the table's explorer item text as property name
-         var propertyName = table.ExplorerItem.Text;
+         var propertyName = foreignTable.FindFreePropertyName(table.ExplorerItem.Text);
+         foreignTable.PropertyAndFieldNames.Add(propertyName);
 
          // create a property in the foreign key's target table
          var property = foreignTable.TypeBuilder.DefineProperty(propertyName, typedEnumerableType);
@@ -51,7 +52,8 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
       public static string CreateManyToOneAssociation(this TableData table, TableData foreignTable, string primaryKeyName, string foreignKeyName, bool backwardReference = false)
       {
          // use the foreign table's type name as property name
-         var propertyName = foreignTable.TypeBuilder.Name;
+         var propertyName = table.FindFreePropertyName(foreignTable.TypeBuilder.Name);
+         table.PropertyAndFieldNames.Add(propertyName);
 
          // create a property of the foreign table's type in the table entity
          var property = table.TypeBuilder.DefineProperty(propertyName, foreignTable.TypeBuilder);
@@ -81,6 +83,20 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          table.ExplorerItem.Children.Add(explorerItem);
 
          return property.Name;
+      }
+
+      public static string FindFreePropertyName(this TableData tableData, string propertyName)
+      {
+         var originalPropertyName = propertyName;
+
+         // check for a naming collision
+         var i = 1;
+         while (tableData.PropertyAndFieldNames.Contains(propertyName))
+         {
+            propertyName = $"{originalPropertyName}{i++}";
+         }
+
+         return propertyName;
       }
    }
 }

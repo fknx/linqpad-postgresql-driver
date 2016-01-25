@@ -10,7 +10,6 @@ using System.Reflection.Emit;
 using System.IO;
 using LinqToDB.Data;
 using System.Data;
-using LinqToDB.Mapping;
 using DynamicLinqPadPostgreSqlDriver.Extensions;
 using DynamicLinqPadPostgreSqlDriver.UI;
 using DynamicLinqPadPostgreSqlDriver.Shared.Extensions;
@@ -163,9 +162,8 @@ namespace DynamicLinqPadPostgreSqlDriver
          // add the table attribute to the class
          typeBuilder.AddTableAttribute(tableName);
 
-         var columnAttributeConstructor = typeof(ColumnAttribute).GetConstructor(new[] { typeof(string) });
-
          var query = SqlHelper.LoadSql("QueryColumns.sql");
+         var propertyAndFieldNames = new HashSet<string>();
 
          var columns = dbConnection.Query(query, new { DatabaseName = databaseName, TableName = tableName });
          foreach (var column in columns)
@@ -197,6 +195,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                }
 
                text = $"{columnName} ({fieldType.GetTypeName()})";
+               propertyAndFieldNames.Add(columnName);
             }
             else
             {
@@ -212,7 +211,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             tableExplorerItem.Children.Add(explorerItem);
          }
 
-         return new TableData(tableName, tableExplorerItem, typeBuilder);
+         return new TableData(tableName, tableExplorerItem, typeBuilder, propertyAndFieldNames);
       }
 
       private void BuildAssociations(IDbConnection connection, ICollection<TableData> preparedTables)

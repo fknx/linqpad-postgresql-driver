@@ -1,4 +1,5 @@
-﻿using LinqToDB;
+﻿using DynamicLinqPadPostgreSqlDriver.Extensions;
+using LinqToDB;
 using LinqToDB.Mapping;
 using System;
 using System.Collections.Generic;
@@ -68,9 +69,20 @@ namespace DynamicLinqPadPostgreSqlDriver
          if (otherKeyField == null)
             throw new Exception($"The key field (other) with column name '{association.OtherKey}' does not exist.");
 
+         var key = thisKeyField.GetValue(this);
+         if (key == null)
+            return null;
+
          // build query expression
          var parameter = Expression.Parameter(typeof(T));
          var fieldExpression = (Expression) Expression.Field(parameter, otherKeyField);
+
+         Expression fieldNotNullExpression = null;
+         if (otherKeyField.FieldType.IsNullable())
+         {
+            // check whether the field is null before a cast or comparioson
+            fieldNotNullExpression = Expression.NotEqual(fieldExpression, Expression.Constant(null, otherKeyField.FieldType));
+         }
 
          if (thisKeyField.FieldType != otherKeyField.FieldType)
          {
@@ -78,15 +90,15 @@ namespace DynamicLinqPadPostgreSqlDriver
             fieldExpression = Expression.Convert(fieldExpression, thisKeyField.FieldType);
          }
 
-         var key = thisKeyField.GetValue(this);
-         if (key == null)
-            return null;
+         var keyExpression = Expression.Constant(key, thisKeyField.FieldType);
+         var equalExpression = Expression.Equal(fieldExpression, keyExpression);
 
-         var keyExpression = Expression.Constant(key);
-         var equalsExpression = Expression.Equal(fieldExpression, keyExpression);
+         var notNullAndEqualExpression = fieldNotNullExpression != null
+            ? Expression.AndAlso(fieldNotNullExpression, equalExpression)
+            : equalExpression;
 
          // create & compile query
-         return new QueryData<T>(dataContext, table, Expression.Lambda<Func<T, bool>>(equalsExpression, parameter).Compile());
+         return new QueryData<T>(dataContext, table, Expression.Lambda<Func<T, bool>>(notNullAndEqualExpression, parameter).Compile());
       }
 
       private FieldInfo GetFieldByColumnName(Type type, string columnName)
