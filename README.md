@@ -4,6 +4,20 @@ This is a driver for [LINQPad](https://www.linqpad.net) to add support for [Post
 
 This driver has been tested with PostgreSQL 9.4.4 but should work with all versions supported by [LINQ to DB](https://github.com/linq2db/linq2db) v1.0.7.3 and [Npgsql](http://www.npgsql.org) v3.0.5. It can be used with [LINQPad](https://www.linqpad.net) versions 4 and 5.
 
+### Installation
+
+1. Download the `.lpx` file of the latest release from the [releases](https://github.com/fknx/linqpad-postgresql-driver/releases) tab (e.g. `LINQPad.PostgreSQL.Driver.0.1.2.lpx`).
+2. Run [LINQPad](https://www.linqpad.net) and click *Add connection*.
+3. Click *View more drivers*.
+4. Click *Browse* and select the `.lpx` file. The driver has now been installed.
+5. The driver (*PostgreSQL (LINQ to DB)*) should now show up in the *Add connection* dialog.
+
+### Setting up a connection
+
+1. Click *Add connection*, select the driver and click *Next*.
+2. Provide the connection info by either specifying the server (e.g. `localhost:5432`) and database (with optional username and password) or by specifying a [Npgsql](http://www.npgsql.org) [connection string](https://www.connectionstrings.com/npgsql/) manually. If you do not specify a port explicitly the default port `5432` is used.
+3. Create the connection by clicking the *Save* button.
+
 ### Modifying data
 
 Unfortunately, editing data directly in the results grid is not supported for third-party drivers. You can, however, use the [LINQ to DB](https://github.com/linq2db/linq2db) `DataConnection` to modify your data. The `DataConnection` can be accessed using the `this` keyword in your query. In the following some samples to insert, update and delete records are provided. You can get more detailed information on the [LINQ to DB](https://github.com/linq2db/linq2db) website.
