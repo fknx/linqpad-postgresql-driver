@@ -91,6 +91,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <EmbeddedResource Include="SQL\QueryTypeByOid.sql" />
     <EmbeddedResource Include="SQL\QueryFunctions.sql" />
     <EmbeddedResource Include="SQL\QueryPrimaryKeyColumns.sql" />
     <EmbeddedResource Include="SQL\QueryOid.sql" />

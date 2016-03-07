@@ -55,11 +55,14 @@ namespace DynamicLinqPadPostgreSqlDriver
          // handle the basic types first
          switch (dbType)
          {
+            case "int2":
             case "smallint":
                return nullable ? typeof(short?) : typeof(short);
+            case "int4":
             case "integer":
             case "serial":
                return nullable ? typeof(int?) : typeof(int);
+            case "int8":
             case "bigint":
             case "bigserial":
                return nullable ? typeof(long?) : typeof(long);
@@ -72,6 +75,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                return nullable ? typeof(double?) : typeof(double);
             case "bit":
                return null; // not supported ?
+            case "bool":
             case "boolean":
                return nullable ? typeof(bool?) : typeof(bool);
             case "date":

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection.Emit;
@@ -31,22 +32,48 @@ namespace DynamicLinqPadPostgreSqlDriver
         {
             var sql = SqlHelper.LoadSql("QueryFunctions.sql");
 
-            var functions = new List<FunctionData>();
-            using (var rdr = connection.ExecuteReader(sql))
-            {
-                while (rdr.Read())
-                {
-                    functions.Add(new FunctionData(null, (string)rdr["proname"]));
-                }
-            }
+            var functionData = connection.Query<FunctionData2>(sql).ToList();
 
             var functionExplorerItems = new List<ExplorerItem>();
-            foreach (var func in functions.OrderBy(x => x.Name))
+            foreach (var func in functionData.OrderBy(x => x.Name))
             {
-                var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, ExplorerIcon.TableFunction)
+                var argumentTypes = connection.Query(SqlHelper.LoadSql("QueryTypeByOid.sql").Replace("@oids", string.Join(",", func.ArgumentTypeOids)))
+                    .ToDictionary(x => (int)x.oid, x => (string)x.typname);
+
+                var funcType = func.IsMultiValueReturn ? ExplorerIcon.TableFunction : ExplorerIcon.ScalarFunction;
+
+                var paramExplorerItems = new List<ExplorerItem>();
+                for (int i = 0; i < func.ArgumentCount; i++)
+                {
+                    var argName = func.ArgumentNames[i];
+                    var argType = argumentTypes[func.ArgumentTypeOids[i]];
+                    Type mappedArgType;
+
+                    if (argType.StartsWith("_"))
+                    {
+                        mappedArgType = SqlHelper.MapDbTypeToType("array", argType, false, true);
+                    }
+                    else
+                    {
+                        mappedArgType = SqlHelper.MapDbTypeToType(argType, null, false, false);
+                    }
+
+                    if (mappedArgType == null)
+                    {
+                        continue;
+                        
+                        throw new InvalidOperationException($"No mapping found for database type {argType}");
+                    }
+
+                    var itemText = $"{argName} ({mappedArgType.Name})";
+
+                    paramExplorerItems.Add(new ExplorerItem(itemText, ExplorerItemKind.Parameter, ExplorerIcon.Parameter));
+                }
+
+                var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, funcType)
                 {
                     IsEnumerable = true,
-                    Children = new List<ExplorerItem>()
+                    Children = paramExplorerItems
                 };
 
                 functionExplorerItems.Add(explorerItem);
@@ -58,6 +85,17 @@ namespace DynamicLinqPadPostgreSqlDriver
                 Children = functionExplorerItems
             };
         }
+    }
+
+    internal class FunctionData2
+    {
+        public string Name { get; set; }
+        public string ReturnType { get; set; }
+        public int ArgumentCount { get; set; }
+        public string[] ArgumentNames { get; set; }
+        public int[] ArgumentTypeOids { get; set; }
+        public object[] ArgumentDefaults { get; set; }
+        public bool IsMultiValueReturn { get; set; }
     }
 
     internal class FunctionData

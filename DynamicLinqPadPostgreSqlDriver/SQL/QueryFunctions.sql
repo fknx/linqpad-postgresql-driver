@@ -1,5 +1,11 @@
 ﻿select 
-    proname, typname, pronargs, proargnames, proargtypes, proargdefaults
+    proname AS "Name"
+	, typname AS "ReturnType"
+	, pronargs AS "ArgumentCount"
+	, proargnames AS "ArgumentNames"
+	, proargtypes AS "ArgumentTypeOids"
+	, proargdefaults AS "ArgumentDefaults"
+	, proretset AS "IsMultiValueReturn"
 from 
     pg_proc 
     join pg_namespace n 
