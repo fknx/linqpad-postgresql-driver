@@ -67,6 +67,7 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="DatabaseObjectProviderManager.cs" />
     <Compile Include="Extensions\IConnectionInfoExtensions.cs" />
     <Compile Include="Extensions\IDbConnectionExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
@@ -74,6 +75,8 @@
     <Compile Include="Extensions\TableDataExtensions.cs" />
     <Compile Include="Extensions\TypeBuilderExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="IDatabaseObjectProvider.cs" />
+    <Compile Include="PostgreSqlTablesProvider.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TypedDataContextBase.cs" />
     <Compile Include="DynamicPostgreSqlDriver.cs" />
