@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using Dapper;
+using LinqToDB;
+using LinqToDB.Data;
 using LINQPad.Extensibility.DataContext;
 
 namespace DynamicLinqPadPostgreSqlDriver
@@ -32,7 +35,7 @@ namespace DynamicLinqPadPostgreSqlDriver
         {
             var sql = SqlHelper.LoadSql("QueryFunctions.sql");
 
-            var functionData = connection.Query<FunctionData2>(sql).ToList();
+            var functionData = connection.Query<FunctionData>(sql).ToList();
 
             var functionExplorerItems = new List<ExplorerItem>();
             foreach (var func in functionData.OrderBy(x => x.Name))
@@ -41,7 +44,47 @@ namespace DynamicLinqPadPostgreSqlDriver
                     .ToDictionary(x => (int)x.oid, x => (string)x.typname);
 
                 var funcType = func.IsMultiValueReturn ? ExplorerIcon.TableFunction : ExplorerIcon.ScalarFunction;
+                
+                var mappedReturnType = SqlHelper.MapDbTypeToType(func.ReturnType, null, false, false);
+                if (mappedReturnType != null
+                    && func.IsMultiValueReturn)
+                {
+                    mappedReturnType = mappedReturnType.MakeArrayType();
+                }
+                if (mappedReturnType == null)
+                {
+                    mappedReturnType = moduleBuilder.GetType("LINQPad.User." + func.ReturnType);
+                }
+                if (mappedReturnType == null)
+                {
+                    mappedReturnType = typeof (object);
+                }
 
+                // Not supported by GetTable
+                if (mappedReturnType.IsValueType)
+                {
+                    continue;
+                }
+
+                var methodBuilder = dataContextTypeBuilder.DefineMethod(func.Name, MethodAttributes.Public);
+
+                var tableOfReturnType = typeof (ITable<>).MakeGenericType(mappedReturnType);
+
+                methodBuilder.SetReturnType(tableOfReturnType);
+                
+                var ilgen = methodBuilder.GetILGenerator();
+
+                ilgen.Emit(OpCodes.Ldarg_0);
+                ilgen.Emit(OpCodes.Ldarg_0);
+
+                var getCurrentMethod = typeof(MethodBase).GetMethod("GetCurrentMethod", BindingFlags.Static | BindingFlags.Public);
+                ilgen.Emit(OpCodes.Call, getCurrentMethod);
+                ilgen.Emit(OpCodes.Castclass, typeof(MethodInfo));
+
+                ilgen.Emit(OpCodes.Ldc_I4, func.ArgumentCount);
+                ilgen.Emit(OpCodes.Newarr, typeof(object));
+                
+                var paramTypes = new List<Tuple<int,string,Type>>();
                 var paramExplorerItems = new List<ExplorerItem>();
                 for (int i = 0; i < func.ArgumentCount; i++)
                 {
@@ -58,17 +101,37 @@ namespace DynamicLinqPadPostgreSqlDriver
                         mappedArgType = SqlHelper.MapDbTypeToType(argType, null, false, false);
                     }
 
-                    if (mappedArgType == null)
-                    {
-                        continue;
-                        
-                        throw new InvalidOperationException($"No mapping found for database type {argType}");
-                    }
+                    paramTypes.Add(new Tuple<int, string, Type>(i, argName, mappedArgType));
 
-                    var itemText = $"{argName} ({mappedArgType.Name})";
+                    var itemText = $"{argName} ({mappedArgType?.Name??$"unknown type: {argType}"})";
 
                     paramExplorerItems.Add(new ExplorerItem(itemText, ExplorerItemKind.Parameter, ExplorerIcon.Parameter));
                 }
+
+                methodBuilder.SetParameters(paramTypes.Select(x => x.Item3).Where(x =>x != null).ToArray());
+
+                foreach (var paramType in paramTypes)
+                {
+                    var i = paramType.Item1;
+                    var argName = paramType.Item2;
+                    var mappedArgType = paramType.Item3;
+                    if (mappedArgType == null)
+                    {
+                        continue;
+                    }
+
+                    methodBuilder.DefineParameter(i + 1, ParameterAttributes.In, argName);
+
+                    ilgen.Emit(OpCodes.Dup);
+                    ilgen.Emit(OpCodes.Ldc_I4, i);
+                    ilgen.Emit(OpCodes.Ldarg, i + 1);
+                    ilgen.Emit(OpCodes.Stelem_Ref);
+                }
+
+                var getTableMethod = typeof (DataConnection).GetMethod("GetTable", new Type[] {typeof(object),typeof(MethodInfo),typeof(object[])}).MakeGenericMethod(mappedReturnType);
+                ilgen.Emit(OpCodes.Call, getTableMethod);
+                
+                ilgen.Emit(OpCodes.Ret);
 
                 var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, funcType)
                 {
@@ -87,7 +150,7 @@ namespace DynamicLinqPadPostgreSqlDriver
         }
     }
 
-    internal class FunctionData2
+    internal class FunctionData
     {
         public string Name { get; set; }
         public string ReturnType { get; set; }
@@ -96,18 +159,5 @@ namespace DynamicLinqPadPostgreSqlDriver
         public int[] ArgumentTypeOids { get; set; }
         public object[] ArgumentDefaults { get; set; }
         public bool IsMultiValueReturn { get; set; }
-    }
-
-    internal class FunctionData
-    {
-        public FunctionData(ExplorerItem explorerItem, string name)
-        {
-            this.ExplorerItem = explorerItem;
-            this.Name = name;
-        }
-
-        public string Name { get; }
-
-        public ExplorerItem ExplorerItem { get; }
     }
 }
