@@ -76,6 +76,7 @@
     <Compile Include="Extensions\TypeBuilderExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
     <Compile Include="IDatabaseObjectProvider.cs" />
+    <Compile Include="PostgreSqlFunctionsProvider.cs" />
     <Compile Include="PostgreSqlTablesProvider.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TypedDataContextBase.cs" />
@@ -90,6 +91,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <EmbeddedResource Include="SQL\QueryFunctions.sql" />
     <EmbeddedResource Include="SQL\QueryPrimaryKeyColumns.sql" />
     <EmbeddedResource Include="SQL\QueryOid.sql" />
     <EmbeddedResource Include="SQL\QueryTables.sql" />

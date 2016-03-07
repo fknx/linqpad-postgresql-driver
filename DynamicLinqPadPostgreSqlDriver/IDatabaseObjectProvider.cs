@@ -5,6 +5,8 @@ namespace DynamicLinqPadPostgreSqlDriver
 {
     public interface IDatabaseObjectProvider
     {
+        int Priority { get; }
+
         ExplorerItem EmitCodeAndGetExplorerItemTree(TypeBuilder dataContextTypeBuilder);
     }
 }

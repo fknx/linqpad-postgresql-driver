@@ -90,7 +90,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             connection.Open();
 
             var manager = new DatabaseObjectProviderManager(cxInfo, moduleBuilder, connection, nameSpace);
-            foreach (var provider in manager.DatabaseObjectProviders)
+            foreach (var provider in manager.DatabaseObjectProviders.OrderBy(x => x.Priority))
             {
                  explorerItems.Add(provider.EmitCodeAndGetExplorerItemTree(dataContextTypeBuilder));
             }

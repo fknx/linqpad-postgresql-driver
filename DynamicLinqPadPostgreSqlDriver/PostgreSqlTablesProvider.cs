@@ -10,12 +10,17 @@ using LINQPad.Extensibility.DataContext;
 
 namespace DynamicLinqPadPostgreSqlDriver
 {
-    public class PostgreSqlTablesProvider : IDatabaseObjectProvider
+    internal class PostgreSqlTablesProvider : IDatabaseObjectProvider
     {
         private readonly IConnectionInfo cxInfo;
         private readonly ModuleBuilder moduleBuilder;
         private readonly IDbConnection connection;
         private readonly string nameSpace;
+
+        /// <summary>
+        /// Tables should appear first in Explorer view
+        /// </summary>
+        public int Priority { get; } = 0;
 
         public PostgreSqlTablesProvider(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection connection, string nameSpace)
         {
