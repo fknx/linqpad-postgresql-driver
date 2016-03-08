@@ -3,10 +3,10 @@ using LINQPad.Extensibility.DataContext;
 
 namespace DynamicLinqPadPostgreSqlDriver
 {
-    public interface IDatabaseObjectProvider
-    {
-        int Priority { get; }
+   public interface IDatabaseObjectProvider
+   {
+      int Priority { get; }
 
-        ExplorerItem EmitCodeAndGetExplorerItemTree(TypeBuilder dataContextTypeBuilder);
-    }
+      ExplorerItem EmitCodeAndGetExplorerItemTree(TypeBuilder dataContextTypeBuilder);
+   }
 }
