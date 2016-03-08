@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using Dapper;
+using DynamicLinqPadPostgreSqlDriver.Extensions;
 using LinqToDB;
 using LinqToDB.Data;
 using LINQPad.Extensibility.DataContext;
@@ -53,7 +54,8 @@ namespace DynamicLinqPadPostgreSqlDriver
             }
             if (mappedReturnType == null)
             {
-               mappedReturnType = moduleBuilder.GetType("LINQPad.User." + func.ReturnType);
+               var userTypeName = cxInfo.GetTypeName(func.ReturnType);
+               mappedReturnType = moduleBuilder.GetType($"{nameSpace}.{userTypeName}");
             }
             if (mappedReturnType == null)
             {
@@ -125,6 +127,13 @@ namespace DynamicLinqPadPostgreSqlDriver
                ilgen.Emit(OpCodes.Dup);
                ilgen.Emit(OpCodes.Ldc_I4, i);
                ilgen.Emit(OpCodes.Ldarg, i + 1);
+
+               if (mappedArgType.IsPrimitive
+                   && mappedArgType.IsValueType)
+               {
+                  ilgen.Emit(OpCodes.Box, mappedArgType);
+               }
+
                ilgen.Emit(OpCodes.Stelem_Ref);
             }
 
@@ -140,6 +149,9 @@ namespace DynamicLinqPadPostgreSqlDriver
             };
 
             functionExplorerItems.Add(explorerItem);
+
+            var sqlFunctionAttributeConstructor = typeof (Sql.TableFunctionAttribute).GetConstructor(new Type[] {typeof (string)});
+            methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(sqlFunctionAttributeConstructor, new object[]{ func.Name }));
          }
 
          return new ExplorerItem("Functions", ExplorerItemKind.Category, ExplorerIcon.ScalarFunction)
