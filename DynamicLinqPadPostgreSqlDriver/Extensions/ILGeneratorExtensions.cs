@@ -27,7 +27,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          ilgen.Emit(OpCodes.Ldc_I4, i);
          ilgen.Emit(OpCodes.Ldarg, i + 1);
 
-         if (mappedArgType.IsPrimitive && mappedArgType.IsValueType)
+         if (mappedArgType.IsValueType)
          {
             ilgen.Emit(OpCodes.Box, mappedArgType);
          }
@@ -67,7 +67,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          ilgen.Emit(OpCodes.Ldstr, argName);
          ilgen.Emit(OpCodes.Ldarg, i+1);
 
-         if (mappedArgType.IsPrimitive && mappedArgType.IsValueType)
+         if (mappedArgType.IsValueType)
          {
             ilgen.Emit(OpCodes.Box, mappedArgType);
          }

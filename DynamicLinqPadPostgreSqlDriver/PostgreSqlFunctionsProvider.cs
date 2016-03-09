@@ -57,6 +57,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                funcReturnTypeInfo.ElementType = mappedReturnType;
                funcReturnTypeInfo.IsValueType = mappedReturnType.IsValueType;
 
+               // TODO: FirstOrDefault in method body
                if (func.IsMultiValueReturn)
                {
                   funcReturnTypeInfo.CollectionType = typeof(IEnumerable<>).MakeGenericType(mappedReturnType);
