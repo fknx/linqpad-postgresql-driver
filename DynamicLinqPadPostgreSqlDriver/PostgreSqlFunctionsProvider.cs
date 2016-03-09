@@ -83,12 +83,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                funcReturnTypeInfo.IsRecord = true;
                funcReturnTypeInfo.CollectionType = typeof (IEnumerable<>).MakeGenericType(mappedReturnType);
             }
-
-            if (!funcReturnTypeInfo.ExistsAsTable)
-            {
-               continue;
-            }
-
+            
             var methodBuilder = dataContextTypeBuilder.DefineMethod(func.Name, MethodAttributes.Public);
             
             methodBuilder.SetReturnType(funcReturnTypeInfo.CollectionType?? funcReturnTypeInfo.ElementType);
@@ -98,6 +93,10 @@ namespace DynamicLinqPadPostgreSqlDriver
             if (funcReturnTypeInfo.ExistsAsTable)
             {
                ilgen.EmitBodyBeginForGetTable(func);
+            }
+            else
+            {
+               ilgen.EmitBodyBeginForGetEnumerable(func, funcReturnTypeInfo);
             }
 
             var paramTypes = new List<Tuple<int, string, Type>>();
@@ -142,14 +141,22 @@ namespace DynamicLinqPadPostgreSqlDriver
                {
                   ilgen.EmitParameterBodyForGetTable(i, mappedArgType);
                }
+               else
+               {
+                  ilgen.EmitParameterBodyForGetEnumerable(i, argName, mappedArgType);
+               }
             }
 
             if (funcReturnTypeInfo.ExistsAsTable)
             {
                ilgen.EmitBodyEndForGetTable(mappedReturnType);
 
-               var sqlFunctionAttributeConstructor = typeof(Sql.TableFunctionAttribute).GetConstructor(new Type[] { typeof(string) });
-               methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(sqlFunctionAttributeConstructor, new object[] { func.Name }));
+               var sqlFunctionAttributeConstructor = typeof (Sql.TableFunctionAttribute).GetConstructor(new Type[] {typeof (string)});
+               methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(sqlFunctionAttributeConstructor, new object[] {func.Name}));
+            }
+            else
+            {
+               ilgen.EmitBodyEndForGetEnumerable(funcReturnTypeInfo);
             }
 
             var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, funcType)
