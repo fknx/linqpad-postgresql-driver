@@ -38,7 +38,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests
          var dcType = createdAssembly.GetType($"{nameSpace}.{typeName}");
          dynamic dc = Activator.CreateInstance(dcType, ProviderName, ConnectionString);
 
-         var resultset = (IEnumerable<object>)dc.get_allotmentsets(1,1,1);
+         var resultset = (IEnumerable<object>)dc.get_allotmentsets(1,150243,1);
          var results = resultset.ToList();
 
          // TODO write tests for different kinds of postgresql functions

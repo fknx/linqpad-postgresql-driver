@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -45,46 +46,59 @@ namespace DynamicLinqPadPostgreSqlDriver
                .ToDictionary(x => (int)x.oid, x => (string)x.typname);
 
             var funcType = func.IsMultiValueReturn ? ExplorerIcon.TableFunction : ExplorerIcon.ScalarFunction;
+            
+            var funcReturnTypeInfo = new TypeInfo();
 
             var mappedReturnType = SqlHelper.MapDbTypeToType(func.ReturnType, null, false, false);
-            if (mappedReturnType != null
-                && func.IsMultiValueReturn)
+
+            if (mappedReturnType != null)
             {
-               mappedReturnType = mappedReturnType.MakeArrayType();
+               funcReturnTypeInfo.IsPrimitive = true;
+               funcReturnTypeInfo.ElementType = mappedReturnType;
+               funcReturnTypeInfo.IsValueType = mappedReturnType.IsValueType;
+
+               if (func.IsMultiValueReturn)
+               {
+                  funcReturnTypeInfo.CollectionType = typeof(IEnumerable<>).MakeGenericType(mappedReturnType);
+               }
             }
+            
             if (mappedReturnType == null)
             {
                var userTypeName = cxInfo.GetTypeName(func.ReturnType);
                mappedReturnType = moduleBuilder.GetType($"{nameSpace}.{userTypeName}");
+
+               if (mappedReturnType != null)
+               {
+                  funcReturnTypeInfo.ExistsAsTable = true;
+                  funcReturnTypeInfo.ElementType = mappedReturnType;
+                  funcReturnTypeInfo.CollectionType = typeof(ITable<>).MakeGenericType(mappedReturnType);
+               }
             }
+            
             if (mappedReturnType == null)
             {
-               mappedReturnType = typeof (object);
+               mappedReturnType = typeof (ExpandoObject);
+               funcReturnTypeInfo.ElementType = mappedReturnType;
+               funcReturnTypeInfo.IsRecord = true;
+               funcReturnTypeInfo.CollectionType = typeof (IEnumerable<>).MakeGenericType(mappedReturnType);
             }
 
-            // Not supported by GetTable
-            if (mappedReturnType.IsValueType)
+            if (!funcReturnTypeInfo.ExistsAsTable)
             {
                continue;
             }
 
             var methodBuilder = dataContextTypeBuilder.DefineMethod(func.Name, MethodAttributes.Public);
-
-            var tableOfReturnType = typeof (ITable<>).MakeGenericType(mappedReturnType);
-
-            methodBuilder.SetReturnType(tableOfReturnType);
+            
+            methodBuilder.SetReturnType(funcReturnTypeInfo.CollectionType?? funcReturnTypeInfo.ElementType);
 
             var ilgen = methodBuilder.GetILGenerator();
 
-            ilgen.Emit(OpCodes.Ldarg_0);
-            ilgen.Emit(OpCodes.Ldarg_0);
-
-            var getCurrentMethod = typeof (MethodBase).GetMethod("GetCurrentMethod", BindingFlags.Static | BindingFlags.Public);
-            ilgen.Emit(OpCodes.Call, getCurrentMethod);
-            ilgen.Emit(OpCodes.Castclass, typeof (MethodInfo));
-
-            ilgen.Emit(OpCodes.Ldc_I4, func.ArgumentCount);
-            ilgen.Emit(OpCodes.Newarr, typeof (object));
+            if (funcReturnTypeInfo.ExistsAsTable)
+            {
+               ilgen.EmitBodyBeginForGetTable(func);
+            }
 
             var paramTypes = new List<Tuple<int, string, Type>>();
             var paramExplorerItems = new List<ExplorerItem>();
@@ -124,23 +138,19 @@ namespace DynamicLinqPadPostgreSqlDriver
 
                methodBuilder.DefineParameter(i + 1, ParameterAttributes.In, argName);
 
-               ilgen.Emit(OpCodes.Dup);
-               ilgen.Emit(OpCodes.Ldc_I4, i);
-               ilgen.Emit(OpCodes.Ldarg, i + 1);
-
-               if (mappedArgType.IsPrimitive
-                   && mappedArgType.IsValueType)
+               if (funcReturnTypeInfo.ExistsAsTable)
                {
-                  ilgen.Emit(OpCodes.Box, mappedArgType);
+                  ilgen.EmitParameterBodyForGetTable(i, mappedArgType);
                }
-
-               ilgen.Emit(OpCodes.Stelem_Ref);
             }
 
-            var getTableMethod = typeof (DataConnection).GetMethod("GetTable", new Type[] {typeof (object), typeof (MethodInfo), typeof (object[])}).MakeGenericMethod(mappedReturnType);
-            ilgen.Emit(OpCodes.Call, getTableMethod);
+            if (funcReturnTypeInfo.ExistsAsTable)
+            {
+               ilgen.EmitBodyEndForGetTable(mappedReturnType);
 
-            ilgen.Emit(OpCodes.Ret);
+               var sqlFunctionAttributeConstructor = typeof(Sql.TableFunctionAttribute).GetConstructor(new Type[] { typeof(string) });
+               methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(sqlFunctionAttributeConstructor, new object[] { func.Name }));
+            }
 
             var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, funcType)
             {
@@ -149,9 +159,6 @@ namespace DynamicLinqPadPostgreSqlDriver
             };
 
             functionExplorerItems.Add(explorerItem);
-
-            var sqlFunctionAttributeConstructor = typeof (Sql.TableFunctionAttribute).GetConstructor(new Type[] {typeof (string)});
-            methodBuilder.SetCustomAttribute(new CustomAttributeBuilder(sqlFunctionAttributeConstructor, new object[]{ func.Name }));
          }
 
          return new ExplorerItem("Functions", ExplorerItemKind.Category, ExplorerIcon.ScalarFunction)
@@ -171,5 +178,15 @@ namespace DynamicLinqPadPostgreSqlDriver
       public int[] ArgumentTypeOids { get; set; }
       public object[] ArgumentDefaults { get; set; }
       public bool IsMultiValueReturn { get; set; }
+   }
+
+   internal class TypeInfo
+   {
+      public bool IsPrimitive { get; set; }
+      public bool IsValueType { get; set; }
+      public bool ExistsAsTable { get; set; }
+      public bool IsRecord { get; set; }
+      public Type ElementType { get; set; }
+      public Type CollectionType { get; set; }
    }
 }

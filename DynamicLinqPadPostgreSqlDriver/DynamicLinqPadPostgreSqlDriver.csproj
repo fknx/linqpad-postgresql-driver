@@ -70,6 +70,7 @@
     <Compile Include="DatabaseObjectProviderManager.cs" />
     <Compile Include="Extensions\IConnectionInfoExtensions.cs" />
     <Compile Include="Extensions\IDbConnectionExtensions.cs" />
+    <Compile Include="Extensions\ILGeneratorExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\PropertyBuilderExtensions.cs" />
     <Compile Include="Extensions\TableDataExtensions.cs" />
