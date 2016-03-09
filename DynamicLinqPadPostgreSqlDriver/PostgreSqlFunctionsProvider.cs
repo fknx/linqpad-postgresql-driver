@@ -116,6 +116,41 @@ namespace DynamicLinqPadPostgreSqlDriver
                   mappedArgType = SqlHelper.MapDbTypeToType(argType, null, false, false);
                }
 
+               if (mappedArgType == null)
+               {
+                  bool isArray = argType.StartsWith("_");
+                  var pgTypeName = argType.TrimStart('_');
+                  var udtAttributes = connection.Query(SqlHelper.LoadSql("QueryUdtAttributes.sql"), new { typname = pgTypeName }).ToList();
+                  if (udtAttributes.Any())
+                  {
+                     var typeName = $"{nameSpace}.{cxInfo.GetTypeName(pgTypeName)}";
+                     var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public);
+
+                     foreach (var attr in udtAttributes)
+                     {
+                        var attrName = cxInfo.GetColumnName((string)attr.AttributeName);
+                        var attrType = SqlHelper.MapDbTypeToType(attr.AttributeType, null, false, true);
+                        if (attrType == null)
+                        {
+                           throw new InvalidOperationException("Unknown type: " + attr.AttributeType);
+                        }
+
+                        typeBuilder.DefineField(attrName, attrType, FieldAttributes.Public);
+                     }
+
+                     var udt = typeBuilder.CreateType();
+
+                     if (isArray)
+                     {
+                        mappedArgType = udt.MakeArrayType();
+                     }
+                     else
+                     {
+                        mappedArgType = typeBuilder.CreateType();
+                     }
+                  }
+               }
+
                paramTypes.Add(new Tuple<int, string, Type>(i, argName, mappedArgType));
 
                var itemText = $"{argName} ({mappedArgType?.Name ?? $"unknown type: {argType}"})";
