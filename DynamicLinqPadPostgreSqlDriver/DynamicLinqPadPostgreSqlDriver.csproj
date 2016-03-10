@@ -76,6 +76,7 @@
     <Compile Include="Extensions\TableDataExtensions.cs" />
     <Compile Include="Extensions\TypeBuilderExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="FunctionArgumentInfo.cs" />
     <Compile Include="FunctionData.cs" />
     <Compile Include="FunctionReturnTypeInfo.cs" />
     <Compile Include="IDatabaseObjectProvider.cs" />
