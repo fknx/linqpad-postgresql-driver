@@ -56,15 +56,13 @@ namespace DynamicLinqPadPostgreSqlDriver
 
             var funcType = func.IsMultiValueReturn ? ExplorerIcon.TableFunction : ExplorerIcon.ScalarFunction;
             
-            var funcReturnTypeInfo = new TypeInfo();
+            var funcReturnTypeInfo = new FunctionReturnTypeInfo();
 
             var mappedReturnType = SqlHelper.MapDbTypeToType(func.ReturnType, null, false, false);
 
             if (mappedReturnType != null)
             {
-               funcReturnTypeInfo.IsPrimitive = true;
                funcReturnTypeInfo.ElementType = mappedReturnType;
-               funcReturnTypeInfo.IsValueType = mappedReturnType.IsValueType;
                
                if (func.IsMultiValueReturn)
                {
@@ -89,7 +87,6 @@ namespace DynamicLinqPadPostgreSqlDriver
             {
                mappedReturnType = typeof (ExpandoObject);
                funcReturnTypeInfo.ElementType = mappedReturnType;
-               funcReturnTypeInfo.IsRecord = true;
                funcReturnTypeInfo.CollectionType = typeof (IEnumerable<>).MakeGenericType(mappedReturnType);
             }
             
@@ -218,26 +215,5 @@ namespace DynamicLinqPadPostgreSqlDriver
             Children = functionExplorerItems
          };
       }
-   }
-
-   internal class FunctionData
-   {
-      public string Name { get; set; }
-      public string ReturnType { get; set; }
-      public int ArgumentCount { get; set; }
-      public string[] ArgumentNames { get; set; }
-      public int[] ArgumentTypeOids { get; set; }
-      public object[] ArgumentDefaults { get; set; }
-      public bool IsMultiValueReturn { get; set; }
-   }
-
-   internal class TypeInfo
-   {
-      public bool IsPrimitive { get; set; }
-      public bool IsValueType { get; set; }
-      public bool ExistsAsTable { get; set; }
-      public bool IsRecord { get; set; }
-      public Type ElementType { get; set; }
-      public Type CollectionType { get; set; }
    }
 }

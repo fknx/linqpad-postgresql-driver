@@ -44,7 +44,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
       }
 
 
-      public static void EmitBodyBeginForGetEnumerable(this ILGenerator ilgen, FunctionData func, TypeInfo funcReturnTypeInfo)
+      public static void EmitBodyBeginForGetEnumerable(this ILGenerator ilgen, FunctionData func, FunctionReturnTypeInfo funcReturnTypeInfo)
       {
          ilgen.Emit(OpCodes.Ldarg_0);
          ilgen.Emit(OpCodes.Ldarg_0);
@@ -78,7 +78,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          ilgen.Emit(OpCodes.Stelem_Ref); // Set created object to array index
       }
 
-      public static void EmitBodyEndForGetEnumerable(this ILGenerator ilgen, TypeInfo funcReturnTypeInfo)
+      public static void EmitBodyEndForGetEnumerable(this ILGenerator ilgen, FunctionReturnTypeInfo funcReturnTypeInfo)
       {
          var queryProcMethod = typeof(DataConnectionExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public)
             .Single(x => x.Name == "QueryProc" && x.GetParameters().Length == 4)
