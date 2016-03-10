@@ -87,6 +87,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DynamicAssemblyGeneration\DatabaseFixture.cs" />
+    <Compile Include="DynamicAssemblyGeneration\TestBase.cs" />
     <Compile Include="TestAdvancedTypeMappings.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestBasicTypeMappings.cs" />
