@@ -85,6 +85,15 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
             .MakeGenericMethod(funcReturnTypeInfo.ElementType);
          ilgen.Emit(OpCodes.Call, queryProcMethod);
 
+         // Is the return type a single value?
+         if (funcReturnTypeInfo.CollectionType == null)
+         {
+            var firstMethod = typeof (Enumerable).GetMethods()
+               .Single(x => x.Name == "First" && x.GetParameters().Length == 1)
+               .MakeGenericMethod(funcReturnTypeInfo.ElementType);
+            ilgen.Emit(OpCodes.Call, firstMethod);
+         }
+
          ilgen.Emit(OpCodes.Ret);
       }
    }
