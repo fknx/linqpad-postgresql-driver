@@ -132,5 +132,21 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
 
          // dynamic result = ((IEnumerable<object>)query).ToList();
       }
+
+      [Fact]
+      public void TestReturnJson()
+      {
+         dynamic dc = ArrangeDataContext(db =>
+         {
+            DBConnection.Execute("CREATE FUNCTION public.get_json() RETURNS json AS $$ SELECT array_to_json('{{1,5},{99,100}}'::int[]) $$ LANGUAGE SQL;");
+         });
+
+         var result = ((IEnumerable<object>)dc.get_json()).ToList();
+
+         Assert.Equal(1, result.Count);
+
+         dynamic record = result[0];
+         Assert.Equal("[[1,5],[99,100]]", record.get_json);
+      }
    }
 }
