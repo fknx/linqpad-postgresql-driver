@@ -71,10 +71,12 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
          TestSimpleTypeMultiValueReturn("integer", 1, 2);
       }
 
-      [Fact]
-      public void TestMultiValueReturnString()
+      [Theory]
+      [InlineData("text")]
+      [InlineData("varchar")]
+      public void TestMultiValueReturnString(string dataTypeName)
       {
-         TestSimpleTypeMultiValueReturn("text", "a", "b");
+         TestSimpleTypeMultiValueReturn(dataTypeName, "a", "b");
       }
 
       [Fact]
@@ -89,10 +91,12 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
          TestSimpleTypeArrayInputParameter("integer", new [] {1,2,3});
       }
 
-      [Fact]
-      public void TestArrayInputParameterString()
+      [Theory]
+      [InlineData("text")]
+      [InlineData("varchar")]
+      public void TestArrayInputParameterString(string dataTypeName)
       {
-         TestSimpleTypeArrayInputParameter("text", new[] { "a", "b", "c" });
+         TestSimpleTypeArrayInputParameter(dataTypeName, new[] { "a", "b", "c" });
       }
 
       [Fact]

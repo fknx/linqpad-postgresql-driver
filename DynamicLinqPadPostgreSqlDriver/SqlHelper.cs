@@ -96,6 +96,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             case "character":
             case "character varying":
             case "name":
+            case "varchar":
                return typeof(string);
             case "bytea":
                return typeof(byte[]);

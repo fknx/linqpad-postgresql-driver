@@ -153,7 +153,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                TryCreateUserDefinedType(argType, out mappedArgType);
             }
 
-            paramTypes.Add(new FunctionArgumentInfo { Index = i, Name = argName, Type = mappedArgType });
+            paramTypes.Add(new FunctionArgumentInfo { Index = i, Name = argName, Type = mappedArgType, DbTypeName = argType});
          }
 
          return paramTypes;
@@ -161,7 +161,7 @@ namespace DynamicLinqPadPostgreSqlDriver
 
       private void EmitILCodeForFunctionParameters(ILGenerator ilgen, MethodBuilder methodBuilder, List<FunctionArgumentInfo> paramTypes, bool funcReturnTypeExistsAsTable)
       {
-         methodBuilder.SetParameters(paramTypes.Select(x => x.Type).Where(x => x != null).ToArray());
+         methodBuilder.SetParameters(paramTypes.Select(x => x.Type??typeof(object)).ToArray());
 
          foreach (var paramType in paramTypes)
          {
@@ -190,7 +190,7 @@ namespace DynamicLinqPadPostgreSqlDriver
       {
          var paramExplorerItems = paramTypes.Select(x =>
          {
-            var itemText = $"{x.Name} ({x.Type?.Name ?? "unknown type"})";
+            var itemText = $"{x.Name} ({x.Type?.Name ?? $"unknown type: {x.DbTypeName}"})";
             return new ExplorerItem(itemText, ExplorerItemKind.Parameter, ExplorerIcon.Parameter);
          }).ToList();
 
