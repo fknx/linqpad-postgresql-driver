@@ -14,36 +14,26 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
 
       public DatabaseFixture()
       {
-         CreateDatabaseIfNotExists();
+         CreateDatabase();
 
          DBConnection = new NpgsqlConnection(ConnectionString);
          DBConnection.Open();
       }
 
-      private static void CreateDatabaseIfNotExists()
+      private static void CreateDatabase()
       {
          var cxBuilder = new NpgsqlConnectionStringBuilder(ConnectionString);
          var database = cxBuilder.Database;
          cxBuilder.Database = null;
 
          var db = new NpgsqlConnection(cxBuilder.ToString());
-         db.Execute($"CREATE DATABASE '{database}' IF NOT EXISTS");
-      }
-
-      private static void DropDatabase()
-      {
-         var cxBuilder = new NpgsqlConnectionStringBuilder(ConnectionString);
-         var database = cxBuilder.Database;
-         cxBuilder.Database = null;
-
-         var db = new NpgsqlConnection(cxBuilder.ToString());
-         db.Execute($"DROP DATABASE '{database}'");
+         db.Execute($"DROP DATABASE IF EXISTS \"{database}\"");
+         db.Execute($"CREATE DATABASE \"{database}\"");
       }
 
       public void Dispose()
       {
          DBConnection.Close();
-         DropDatabase();
       }
    }
 }

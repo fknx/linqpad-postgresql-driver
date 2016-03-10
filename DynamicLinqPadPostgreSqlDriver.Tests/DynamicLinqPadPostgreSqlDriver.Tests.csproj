@@ -89,11 +89,11 @@
   <ItemGroup>
     <Compile Include="DynamicAssemblyGeneration\DatabaseFixture.cs" />
     <Compile Include="DynamicAssemblyGeneration\TestBase.cs" />
+    <Compile Include="DynamicAssemblyGeneration\TestPostgreSqlFunctions.cs" />
     <Compile Include="TestAdvancedTypeMappings.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestBasicTypeMappings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestDynamicAssemblyGeneration.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config">

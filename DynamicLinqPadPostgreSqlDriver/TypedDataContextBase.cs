@@ -29,7 +29,7 @@ namespace DynamicLinqPadPostgreSqlDriver
 
       protected Func<IDataReader, TTarget> GetMapper<TTarget>()
       {
-         if (typeof(TTarget).IsPrimitive)
+         if (typeof(TTarget).IsPrimitive || typeof(TTarget) == typeof(string) || typeof(TTarget) == typeof(decimal))
          {
             return rdr => (TTarget)rdr.GetValue(0);
          }

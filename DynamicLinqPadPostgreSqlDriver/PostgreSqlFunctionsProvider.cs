@@ -42,8 +42,17 @@ namespace DynamicLinqPadPostgreSqlDriver
          var functionExplorerItems = new List<ExplorerItem>();
          foreach (var func in functionData.OrderBy(x => x.Name))
          {
-            var argumentTypes = connection.Query(SqlHelper.LoadSql("QueryTypeByOid.sql").Replace("@oids", string.Join(",", func.ArgumentTypeOids)))
-               .ToDictionary(x => (int)x.oid, x => (string)x.typname);
+            Dictionary<int, string> argumentTypes;
+
+            if (func.ArgumentTypeOids.Any())
+            {
+               argumentTypes = connection.Query(SqlHelper.LoadSql("QueryTypeByOid.sql").Replace("@oids", string.Join(",", func.ArgumentTypeOids)))
+                  .ToDictionary(x => (int)x.oid, x => (string)x.typname);
+            }
+            else
+            {
+               argumentTypes = new Dictionary<int, string>();
+            }
 
             var funcType = func.IsMultiValueReturn ? ExplorerIcon.TableFunction : ExplorerIcon.ScalarFunction;
             
@@ -103,7 +112,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             var paramExplorerItems = new List<ExplorerItem>();
             for (int i = 0; i < func.ArgumentCount; i++)
             {
-               var argName = func.ArgumentNames[i];
+               var argName = func.ArgumentNames?[i];
                var argType = argumentTypes[func.ArgumentTypeOids[i]];
                Type mappedArgType;
 
@@ -163,7 +172,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             foreach (var paramType in paramTypes)
             {
                var i = paramType.Item1;
-               var argName = paramType.Item2;
+               var argName = paramType.Item2?? $"param{i}";
                var mappedArgType = paramType.Item3;
                if (mappedArgType == null)
                {
