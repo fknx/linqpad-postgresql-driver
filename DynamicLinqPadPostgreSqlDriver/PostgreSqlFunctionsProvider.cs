@@ -199,8 +199,11 @@ namespace DynamicLinqPadPostgreSqlDriver
          var explorerItem = new ExplorerItem(func.Name, ExplorerItemKind.QueryableObject, funcType)
          {
             IsEnumerable = true,
-            Children = paramExplorerItems
+            Children = paramExplorerItems,
+            SqlName = $"{func.Name}({string.Join(",", paramTypes.Select(x => x.DbTypeName))})"
          };
+
+         explorerItem.SupportsDDLEditing(true);
 
          return explorerItem;
       }
