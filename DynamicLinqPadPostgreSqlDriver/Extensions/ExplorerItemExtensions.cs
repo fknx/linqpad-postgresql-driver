@@ -8,7 +8,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
       public static void SupportsDDLEditing(this ExplorerItem explorerItem, bool value)
       {
          var ddlEditingField = typeof(ExplorerItem).GetField("SupportsDDLEditing", BindingFlags.NonPublic | BindingFlags.Instance);
-         ddlEditingField?.SetValue(explorerItem, true);
+         ddlEditingField?.SetValue(explorerItem, value);
       }
    }
 }
