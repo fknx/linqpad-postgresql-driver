@@ -67,13 +67,21 @@
     <Compile Include="..\VersionInfo.cs">
       <Link>VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="DatabaseObjectProviderManager.cs" />
     <Compile Include="Extensions\IConnectionInfoExtensions.cs" />
     <Compile Include="Extensions\IDbConnectionExtensions.cs" />
+    <Compile Include="Extensions\ILGeneratorExtensions.cs" />
     <Compile Include="Extensions\StringExtensions.cs" />
     <Compile Include="Extensions\PropertyBuilderExtensions.cs" />
     <Compile Include="Extensions\TableDataExtensions.cs" />
     <Compile Include="Extensions\TypeBuilderExtensions.cs" />
     <Compile Include="Extensions\TypeExtensions.cs" />
+    <Compile Include="FunctionArgumentInfo.cs" />
+    <Compile Include="FunctionData.cs" />
+    <Compile Include="FunctionReturnTypeInfo.cs" />
+    <Compile Include="IDatabaseObjectProvider.cs" />
+    <Compile Include="PostgreSqlFunctionsProvider.cs" />
+    <Compile Include="PostgreSqlTablesProvider.cs" />
     <Compile Include="SqlHelper.cs" />
     <Compile Include="TypedDataContextBase.cs" />
     <Compile Include="DynamicPostgreSqlDriver.cs" />
@@ -87,6 +95,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </Content>
+    <EmbeddedResource Include="SQL\QueryUdtAttributes.sql" />
+    <EmbeddedResource Include="SQL\QueryTypeByOid.sql" />
+    <EmbeddedResource Include="SQL\QueryFunctions.sql" />
     <EmbeddedResource Include="SQL\QueryPrimaryKeyColumns.sql" />
     <EmbeddedResource Include="SQL\QueryOid.sql" />
     <EmbeddedResource Include="SQL\QueryTables.sql" />

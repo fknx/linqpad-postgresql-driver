@@ -165,6 +165,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests
       [InlineData("character (2)", "42")]
       [InlineData("character varying (2)", "42")]
       [InlineData("name", "42")]
+      [InlineData("varchar (2)", "42")]
       public void TestStringMapping(string dataType, string value)
       {
          TestNullableType(dataType, value);
