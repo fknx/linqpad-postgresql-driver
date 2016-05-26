@@ -110,7 +110,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
       {
          dynamic dc = ArrangeDataContext(db =>
          {
-            DBConnection.Execute("CREATE TYPE testtype AS (id int, name text);");
+            DBConnection.Execute("CREATE TYPE testtype AS (id int, name text, arrayprop integer[]);");
             DBConnection.Execute("CREATE FUNCTION public.echo_udt(testtype) RETURNS testtype AS 'SELECT $1' LANGUAGE SQL;");
          });
 
