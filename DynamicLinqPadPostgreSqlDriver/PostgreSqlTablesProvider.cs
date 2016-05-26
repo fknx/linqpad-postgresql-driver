@@ -133,7 +133,8 @@ namespace DynamicLinqPadPostgreSqlDriver
 
             var explorerItem = new ExplorerItem(text, ExplorerItemKind.Property, ExplorerIcon.Column)
             {
-               SqlTypeDeclaration = column.DataType
+               SqlTypeDeclaration = column.DataType,
+               DragText = columnName
             };
 
             tableExplorerItem.Children.Add(explorerItem);
