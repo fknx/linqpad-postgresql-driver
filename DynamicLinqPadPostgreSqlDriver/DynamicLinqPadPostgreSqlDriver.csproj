@@ -68,6 +68,7 @@
       <Link>VersionInfo.cs</Link>
     </Compile>
     <Compile Include="DatabaseObjectProviderManager.cs" />
+    <Compile Include="DbTypeData.cs" />
     <Compile Include="DDL\DbCommandProxy.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -86,7 +86,8 @@ namespace DynamicLinqPadPostgreSqlDriver
             foreach (var attr in udtAttributes)
             {
                var attrName = cxInfo.GetColumnName((string)attr.AttributeName);
-               var attrType = SqlHelper.MapDbTypeToType(attr.AttributeType, null, false, true);
+               var attrTypeData = DbTypeData.FromString(attr.AttributeType);
+               var attrType = SqlHelper.MapDbTypeToType(attrTypeData.DbType, attrTypeData.UdtName, false, true);
                if (attrType == null)
                {
                   throw new InvalidOperationException("Unknown type: " + attr.AttributeType);
