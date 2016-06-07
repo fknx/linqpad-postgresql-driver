@@ -7,7 +7,7 @@ namespace DynamicLinqPadPostgreSqlDriver
       public int ArgumentCount { get; set; }
       public string[] ArgumentNames { get; set; }
       public int[] ArgumentTypeOids { get; set; }
-      public object[] ArgumentDefaults { get; set; }
+      public string ArgumentDefaults { get; set; }
       public bool IsMultiValueReturn { get; set; }
    }
 }
