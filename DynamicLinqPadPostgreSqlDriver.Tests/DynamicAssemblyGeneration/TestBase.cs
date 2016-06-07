@@ -62,6 +62,19 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
          }
       }
 
+      public void TestInputParametersWithDefault(params InputParameterTestData[] testData)
+      {
+         var parameterDeclaration = string.Join(",", testData.Select(x => $"IN p_{x.Name} {x.PgSqlType}{(x.Default != null ? " DEFAULT " + x.Default : "")}"));
+         var returnTableDeclaration = string.Join(",", testData.Select(x => $"{x.Name} {x.PgSqlType}"));
+         var selectColumns = string.Join(",", testData.Select(x => $"p_{x.Name}"));
+
+         // This crashes with an NpgsqlException when the argument defaults are not handled separately. Npgsql seems to be unable to determine the type.
+         ArrangeDataContext(db =>
+         {
+            DBConnection.Execute($"CREATE FUNCTION public.echo_params({parameterDeclaration}) RETURNS TABLE({returnTableDeclaration}) AS 'SELECT {selectColumns};' LANGUAGE SQL;");
+         });
+      }
+
       public TypedDataContextBase ArrangeDataContext(Action<IDbConnection> prepareDatabase)
       {
          prepareDatabase(DBConnection);

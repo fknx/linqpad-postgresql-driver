@@ -148,5 +148,20 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
          dynamic record = result[0];
          Assert.Equal("[[1,5],[99,100]]", record.get_json);
       }
+
+      [Fact]
+      public void TestSimpleParameterWithDefault()
+      {
+         TestInputParametersWithDefault(new InputParameterTestData("id", "integer", 0));
+      }
+
+      [Fact]
+      public void TestMultipleParametersWithDefault()
+      {
+         TestInputParametersWithDefault(
+            new InputParameterTestData("txt", "text", "'comma,separated,text'"),
+            new InputParameterTestData("id", "integer", 0),
+            new InputParameterTestData("arr", "int[]", "'{1,2}'"));
+      }
    }
 }
