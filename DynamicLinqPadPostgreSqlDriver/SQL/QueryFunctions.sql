@@ -4,7 +4,7 @@
 	, pronargs AS "ArgumentCount"
 	, proargnames AS "ArgumentNames"
 	, proargtypes AS "ArgumentTypeOids"
-	, proargdefaults AS "ArgumentDefaults"
+	, pg_get_expr(proargdefaults, 0) AS "ArgumentDefaults"
 	, proretset AS "IsMultiValueReturn"
 from 
     pg_proc 
