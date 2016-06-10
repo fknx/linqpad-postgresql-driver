@@ -8,7 +8,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
    public class DatabaseFixture : IDisposable
    {
       public const string ProviderName = "PostgreSQL";
-      public const string ConnectionString = "Server=localhost;Port=5433;Database=TestDb_DynamicAssemblyGeneration;User Id=postgres;Password=postgres;";
+      public const string ConnectionString = "Server=localhost;Port=5432;Database=TestDb_DynamicAssemblyGeneration;User Id=postgres;Password=Password12!;";
 
       public IDbConnection DBConnection { get; }
 
