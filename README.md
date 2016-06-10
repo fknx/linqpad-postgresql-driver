@@ -1,5 +1,7 @@
 # LINQPad PostgreSQL Driver
 
+[![Build status](https://ci.appveyor.com/api/projects/status/d0o17gc26cvv5ca5?svg=true)](https://ci.appveyor.com/project/fknx/linqpad-postgresql-driver)
+
 This is a driver for [LINQPad](https://www.linqpad.net) to add support for [PostgreSQL](http://www.postgresql.org) databases. This driver uses [LINQ to DB](https://github.com/linq2db/linq2db) to execute the LINQ queries and [Npgsql](http://www.npgsql.org) for the database access. In addition [Dapper](https://github.com/StackExchange/dapper-dot-net) is used for a more convenient database access during the model creation.
 
 This driver has been tested with PostgreSQL 9.4.4 but should work with all versions supported by [LINQ to DB](https://github.com/linq2db/linq2db) v1.0.7.4 and [Npgsql](http://www.npgsql.org) v3.0.7. It can be used with [LINQPad](https://www.linqpad.net) versions 4 and 5.
