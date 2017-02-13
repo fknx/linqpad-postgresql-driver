@@ -43,20 +43,21 @@ namespace DynamicLinqPadPostgreSqlDriver
 
             var preparedTables = new List<TableData>();
 
-            foreach (var table in group.OrderBy(t => t.TableName))
+            foreach (var table in group.OrderBy(t => t.TableSchema))
             {
                var unmodifiedTableName = (string)table.TableName;
-               var tableName = cxInfo.GetTableName(unmodifiedTableName);
+               var unmodifiedTableSchema = (string)table.TableSchema;
+               var tableName = cxInfo.GetTableName(unmodifiedTableSchema + "_" + unmodifiedTableName);
 
                var explorerItem = new ExplorerItem(tableName, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
                {
                   IsEnumerable = true,
                   Children = new List<ExplorerItem>(),
                   DragText = tableName,
-                  SqlName = $"\"{unmodifiedTableName}\""
+                  SqlName = $"\"{unmodifiedTableSchema}.{unmodifiedTableName}\""
                };
 
-               var tableData = PrepareTableEntity(cxInfo, moduleBuilder, connection, nameSpace, databaseName, unmodifiedTableName, explorerItem);
+               var tableData = PrepareTableEntity(cxInfo, moduleBuilder, connection, nameSpace, databaseName, unmodifiedTableName, unmodifiedTableSchema, explorerItem);
                preparedTables.Add(tableData);
             }
 
@@ -77,23 +78,24 @@ namespace DynamicLinqPadPostgreSqlDriver
          };
       }
 
-      private static TableData PrepareTableEntity(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection dbConnection, string nameSpace, string databaseName, string tableName, ExplorerItem tableExplorerItem)
-      {
+        private static TableData PrepareTableEntity(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection dbConnection, string nameSpace, string databaseName, string tableName, string tableSchema, ExplorerItem tableExplorerItem)
+        {
          // get primary key columns
-         var primaryKeyColumns = dbConnection.GetPrimaryKeyColumns(tableName);
+         var fullTableName = tableSchema + "." + tableName;
+         var primaryKeyColumns = dbConnection.GetPrimaryKeyColumns(fullTableName);
 
-         var typeName = $"{nameSpace}.{cxInfo.GetTypeName(tableName)}";
+         var typeName = $"{nameSpace}.{cxInfo.GetTypeName(fullTableName)}";
 
          // ToDo make sure tablename can be used
          var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public, typeof(Entity));
 
          // add the table attribute to the class
-         typeBuilder.AddTableAttribute(tableName);
+         typeBuilder.AddTableAttribute(fullTableName);
 
          var query = SqlHelper.LoadSql("QueryColumns.sql");
          var propertyAndFieldNames = new HashSet<string>();
 
-         var columns = dbConnection.Query(query, new { DatabaseName = databaseName, TableName = tableName });
+         var columns = dbConnection.Query(query, new { DatabaseName = databaseName, TableName = tableName, TableSchema = tableSchema });
          foreach (var column in columns)
          {
             var columnName = cxInfo.GetColumnName((string)column.ColumnName);
@@ -140,7 +142,7 @@ namespace DynamicLinqPadPostgreSqlDriver
             tableExplorerItem.Children.Add(explorerItem);
          }
 
-         return new TableData(tableName, tableExplorerItem, typeBuilder, propertyAndFieldNames);
+         return new TableData(fullTableName, tableExplorerItem, typeBuilder, propertyAndFieldNames);
       }
 
       private void BuildAssociations(IDbConnection connection, ICollection<TableData> preparedTables)
