@@ -40,7 +40,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.AddAssociationAttribute(foreignColumnNames, columnNames, table.Name);
 
          // create the explorer item
-         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany);
+         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany) { HyperlinkTarget = table.ExplorerItem };
          foreignTable.ExplorerItem.Children.Add(explorerItem);
 
          // create 'backward' association
@@ -79,7 +79,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.AddAssociationAttribute(foreignColumnNames, columnNames, foreignTable.Name, true);
 
          // create the explorer item
-         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne);
+         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne) { HyperlinkTarget = foreignTable.ExplorerItem };
          table.ExplorerItem.Children.Add(explorerItem);
 
          return property.Name;
