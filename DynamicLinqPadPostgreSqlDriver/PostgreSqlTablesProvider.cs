@@ -35,65 +35,78 @@ namespace DynamicLinqPadPostgreSqlDriver
          var query = SqlHelper.LoadSql("QueryTables.sql");
          var tables = connection.Query(query);
 
-         var explorerItems = new List<ExplorerItem>();
+         var schemaExplorerItems = new List<ExplorerItem>();
 
-         foreach (var group in tables.GroupBy(t => t.TableCatalog))
+         foreach (var catalogGroup in tables.GroupBy(t => t.TableCatalog))
          {
-            var databaseName = group.Key;
+            var databaseName = catalogGroup.Key; // (always the current database specified in connection string)
 
-            var preparedTables = new List<TableData>();
-
-            foreach (var table in group.OrderBy(t => t.TableName))
+            foreach (var schemaGroup in catalogGroup.GroupBy(t => t.TableSchema))
             {
-               var unmodifiedTableName = (string)table.TableName;
-               var tableName = cxInfo.GetTableName(unmodifiedTableName);
+               var tableExplorerItems = new List<ExplorerItem>();
+               var preparedTables = new List<TableData>();
 
-               var explorerItem = new ExplorerItem(tableName, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
+               foreach (var table in schemaGroup.OrderBy(t => t.TableName))
+               {
+                  var unmodifiedTableName = (string)table.TableName;
+                  var unmodifiedTableSchema = (string)table.TableSchema;
+                  var tableName = cxInfo.GetTableName(unmodifiedTableSchema + "_" + unmodifiedTableName);
+
+                  var explorerItem = new ExplorerItem(tableName, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
+                  {
+                     IsEnumerable = true,
+                     Children = new List<ExplorerItem>(),
+                     DragText = tableName,
+                     SqlName = $"\"{unmodifiedTableSchema}.{unmodifiedTableName}\""
+                  };
+
+                  var tableData = PrepareTableEntity(cxInfo, moduleBuilder, connection, nameSpace, databaseName, unmodifiedTableSchema, unmodifiedTableName, explorerItem);
+                  preparedTables.Add(tableData);
+               }
+
+               // build the associations before the types are created
+               BuildAssociations(connection, schemaGroup.Key, preparedTables);
+
+               foreach (var tableData in preparedTables)
+               {
+                  dataContextTypeBuilder.CreateAndAddType(tableData);
+                  tableExplorerItems.Add(tableData.ExplorerItem);
+               }
+
+               var schemaExplorerItem = new ExplorerItem(schemaGroup.Key, ExplorerItemKind.Category, ExplorerIcon.Schema)
                {
                   IsEnumerable = true,
-                  Children = new List<ExplorerItem>(),
-                  DragText = tableName,
-                  SqlName = $"\"{unmodifiedTableName}\""
+                  Children = tableExplorerItems
                };
 
-               var tableData = PrepareTableEntity(cxInfo, moduleBuilder, connection, nameSpace, databaseName, unmodifiedTableName, explorerItem);
-               preparedTables.Add(tableData);
-            }
-
-            // build the associations before the types are created
-            BuildAssociations(connection, preparedTables);
-
-            foreach (var tableData in preparedTables)
-            {
-               dataContextTypeBuilder.CreateAndAddType(tableData);
-               explorerItems.Add(tableData.ExplorerItem);
+               schemaExplorerItems.Add(schemaExplorerItem);
             }
          }
 
          return new ExplorerItem("Tables", ExplorerItemKind.Category, ExplorerIcon.Table)
          {
             IsEnumerable = true,
-            Children = explorerItems
+            Children = schemaExplorerItems
          };
       }
 
-      private static TableData PrepareTableEntity(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection dbConnection, string nameSpace, string databaseName, string tableName, ExplorerItem tableExplorerItem)
+      private static TableData PrepareTableEntity(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection dbConnection, string nameSpace, string databaseName, string tableSchema, string tableName, ExplorerItem tableExplorerItem)
       {
          // get primary key columns
-         var primaryKeyColumns = dbConnection.GetPrimaryKeyColumns(tableName);
+         var primaryKeyColumns = dbConnection.GetPrimaryKeyColumns(tableSchema, tableName);
 
-         var typeName = $"{nameSpace}.{cxInfo.GetTypeName(tableName)}";
+         var typeName = $"{nameSpace}.{tableSchema}.{cxInfo.GetTypeName(tableName)}";
 
          // ToDo make sure tablename can be used
          var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public, typeof(Entity));
 
          // add the table attribute to the class
-         typeBuilder.AddTableAttribute(tableName);
+         typeBuilder.AddTableAttribute($"\"{tableSchema}\".\"{tableName}\"");
 
          var query = SqlHelper.LoadSql("QueryColumns.sql");
          var propertyAndFieldNames = new HashSet<string>();
 
-         var columns = dbConnection.Query(query, new { DatabaseName = databaseName, TableName = tableName });
+         var columns = dbConnection.Query(query, new { DatabaseName = databaseName, TableSchema = tableSchema, TableName = tableName });
          foreach (var column in columns)
          {
             var columnName = cxInfo.GetColumnName((string)column.ColumnName);
@@ -143,11 +156,11 @@ namespace DynamicLinqPadPostgreSqlDriver
          return new TableData(tableName, tableExplorerItem, typeBuilder, propertyAndFieldNames);
       }
 
-      private void BuildAssociations(IDbConnection connection, ICollection<TableData> preparedTables)
+      private void BuildAssociations(IDbConnection connection, string tableSchema, ICollection<TableData> preparedTables)
       {
          var query = SqlHelper.LoadSql("QueryForeignKeys.sql");
 
-         var foreignKeys = connection.Query(query);
+         var foreignKeys = connection.Query(query, new { TableSchema = tableSchema });
 
          foreach (var foreignKey in foreignKeys)
          {
