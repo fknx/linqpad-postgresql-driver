@@ -164,6 +164,8 @@ namespace DynamicLinqPadPostgreSqlDriver
 
          foreach (var foreignKey in foreignKeys)
          {
+            var constraintName = (string)foreignKey.ConstraintName;
+
             var table = preparedTables.FirstOrDefault(t => t.Name == foreignKey.TableName);
             var foreignTable = preparedTables.FirstOrDefault(t => t.Name == foreignKey.ForeignTableName);
 
@@ -174,7 +176,7 @@ namespace DynamicLinqPadPostgreSqlDriver
                continue;
 
             // create one-to-many association
-            table.CreateOneToManyAssociation(foreignTable, columnNames, foreignColumnNames);
+            table.CreateOneToManyAssociation(foreignTable, columnNames, foreignColumnNames, constraintName);
          }
       }
    }
