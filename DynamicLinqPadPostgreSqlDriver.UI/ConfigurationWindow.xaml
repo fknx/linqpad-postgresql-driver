@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI"
         xmlns:ViewModels="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI.ViewModels" x:Class="DynamicLinqPadPostgreSqlDriver.UI.ConfigurationWindow"
         mc:Ignorable="d"
-        x:ClassModifier="internal" Title="PostgreSQL Connection" Height="450" Width="550"
+        x:ClassModifier="internal" Title="PostgreSQL Connection" Height="470" Width="550"
         xmlns:xc="clr-namespace:ExCastle.Wpf" xc:DialogCloser.DialogResult="{Binding DialogResult}" WindowStartupLocation="CenterScreen">
    <Window.DataContext>
       <ViewModels:ConnectionInfoViewModel/>
@@ -24,7 +24,7 @@
       </Grid.ColumnDefinitions>
       <Button x:Name="cancelButton" Content="_Cancel" Grid.Column="2" Margin="5,5,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="2" IsCancel="True" IsDefault="True" Height="24" TabIndex="13"/>
       <Button x:Name="saveButton" Content="_Save" HorizontalAlignment="Right" Margin="0,5,5,10" Grid.Row="2" Width="75" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanSave}" Command="{Binding SaveCommand, Mode=OneWay}" Height="24" TabIndex="12"/>
-      <Grid x:Name="connectionInfoGrid" Margin="0" Grid.ColumnSpan="3">
+      <Grid x:Name="connectionInfoGrid" Margin="0,10,0,0" Grid.ColumnSpan="3">
          <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
@@ -53,7 +53,7 @@
          <Label Content="Database" HorizontalAlignment="Left" Grid.Row="5" Margin="30,0,5,0" d:LayoutOverrides="Height"/>
          <TextBox x:Name="databaseTextBox" TextWrapping="Wrap" Text="{Binding Database, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5,0,10,0" Grid.Row="5" d:LayoutOverrides="Height" VerticalAlignment="Center" IsEnabled="{Binding UseConnectionInfo}" TabIndex="5"/>
       </Grid>
-      <Button x:Name="testConnectionButton" Content="_Test Connection" Margin="10,5,5,10" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" IsEnabled="{Binding CanSave}" Command="{Binding TestConnectionCommand, Mode=OneWay}" Height="24" Width="90" TabIndex="11"/>
+      <Button x:Name="testConnectionButton" Content="_Test Connection" Margin="10,5,5,10" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" IsEnabled="{Binding CanSave}" Command="{Binding TestConnectionCommand, Mode=OneWay}" Height="24" Width="100" TabIndex="11"/>
       <Grid Grid.Row="1" Grid.ColumnSpan="3">
          <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
