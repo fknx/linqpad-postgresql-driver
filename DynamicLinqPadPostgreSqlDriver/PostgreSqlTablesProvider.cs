@@ -167,14 +167,14 @@ namespace DynamicLinqPadPostgreSqlDriver
             var table = preparedTables.FirstOrDefault(t => t.Name == foreignKey.TableName);
             var foreignTable = preparedTables.FirstOrDefault(t => t.Name == foreignKey.ForeignTableName);
 
-            var primaryKeyName = (string)foreignKey.ForeignColumnName;
-            var foreignKeyName = (string)foreignKey.ColumnName;
+            var columnNames = (string)foreignKey.ColumnNames;
+            var foreignColumnNames = (string)foreignKey.ForeignColumnNames;
 
-            if (table == null || foreignTable == null || string.IsNullOrWhiteSpace(foreignKeyName) || string.IsNullOrWhiteSpace(primaryKeyName))
+            if (table == null || foreignTable == null || string.IsNullOrWhiteSpace(columnNames) || string.IsNullOrWhiteSpace(foreignColumnNames))
                continue;
-            
+
             // create one-to-many association
-            table.CreateOneToManyAssociation(foreignTable, primaryKeyName, foreignKeyName);
+            table.CreateOneToManyAssociation(foreignTable, columnNames, foreignColumnNames);
          }
       }
    }

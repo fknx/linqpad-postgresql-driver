@@ -7,7 +7,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
 {
    internal static class TableDataExtensions
    {
-      public static string CreateOneToManyAssociation(this TableData table, TableData foreignTable, string primaryKeyName, string foreignKeyName)
+      public static string CreateOneToManyAssociation(this TableData table, TableData foreignTable, string columnNames, string foreignColumnNames)
       {
          // create an IEnumerable<> with the type of the (main) table's type builder
          var typedEnumerableType = typeof(IEnumerable<>).MakeGenericType(table.TypeBuilder);
@@ -37,19 +37,19 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.SetGetMethod(propertyGetter);
 
          // add the 'AssociationAttribute' to the property
-         property.AddAssociationAttribute(primaryKeyName, foreignKeyName, table.Name);
+         property.AddAssociationAttribute(foreignColumnNames, columnNames, table.Name);
 
          // create the explorer item
          var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany);
          foreignTable.ExplorerItem.Children.Add(explorerItem);
 
          // create 'backward' association
-         table.CreateManyToOneAssociation(foreignTable, primaryKeyName, foreignKeyName, true);
+         table.CreateManyToOneAssociation(foreignTable, foreignColumnNames, columnNames, true);
 
          return propertyName;
       }
 
-      public static string CreateManyToOneAssociation(this TableData table, TableData foreignTable, string primaryKeyName, string foreignKeyName, bool backwardReference = false)
+      public static string CreateManyToOneAssociation(this TableData table, TableData foreignTable, string columnNames, string foreignColumnNames, bool backwardReference = false)
       {
          // use the foreign table's type name as property name
          var propertyName = table.FindFreePropertyName(foreignTable.TypeBuilder.Name);
@@ -76,7 +76,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.SetGetMethod(propertyGetter);
 
          // add the 'AssociationAttribute' to the property
-         property.AddAssociationAttribute(foreignKeyName, primaryKeyName, foreignTable.Name, true);
+         property.AddAssociationAttribute(foreignColumnNames, columnNames, foreignTable.Name, true);
 
          // create the explorer item
          var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne);
