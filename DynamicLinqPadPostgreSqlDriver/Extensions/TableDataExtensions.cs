@@ -76,7 +76,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.SetGetMethod(propertyGetter);
 
          // add the 'AssociationAttribute' to the property
-         property.AddAssociationAttribute(foreignColumnNames, columnNames, foreignTable.Name, true);
+         property.AddAssociationAttribute(foreignColumnNames, columnNames, foreignTable.Name, backwardReference);
 
          // create the explorer item
          var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne) { HyperlinkTarget = foreignTable.ExplorerItem };
