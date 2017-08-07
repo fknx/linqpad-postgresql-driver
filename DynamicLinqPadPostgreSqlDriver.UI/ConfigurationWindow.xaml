@@ -22,8 +22,8 @@
          <ColumnDefinition/>
          <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Button x:Name="cancelButton" Content="_Cancel" Grid.Column="2" Margin="5,5,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="2" IsCancel="True" IsDefault="True" Height="24" TabIndex="13"/>
-      <Button x:Name="saveButton" Content="_Save" HorizontalAlignment="Right" Margin="0,5,5,10" Grid.Row="2" Width="75" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanSave}" Command="{Binding SaveCommand, Mode=OneWay}" Height="24" TabIndex="12"/>
+      <Button x:Name="cancelButton" Content="_Cancel" Grid.Column="2" Margin="5,5,10,10" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="75" Grid.Row="2" IsCancel="True" Height="24" TabIndex="13"/>
+      <Button x:Name="saveButton" Content="_Save" HorizontalAlignment="Right" Margin="0,5,5,10" Grid.Row="2" Width="75" VerticalAlignment="Bottom" Grid.Column="1" IsEnabled="{Binding CanSave}" Command="{Binding SaveCommand, Mode=OneWay}" IsDefault="True" Height="24" TabIndex="12"/>
       <Grid x:Name="connectionInfoGrid" Margin="0,10,0,0" Grid.ColumnSpan="3">
          <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
