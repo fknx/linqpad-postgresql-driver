@@ -7,13 +7,13 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
 {
    internal static class TableDataExtensions
    {
-      public static string CreateOneToManyAssociation(this TableData table, TableData foreignTable, string primaryKeyName, string foreignKeyName)
+      public static string CreateOneToManyAssociation(this TableData table, TableData foreignTable, string columnNames, string foreignColumnNames, string constraintName)
       {
          // create an IEnumerable<> with the type of the (main) table's type builder
          var typedEnumerableType = typeof(IEnumerable<>).MakeGenericType(table.TypeBuilder);
 
-         // use the table's explorer item text as property name
-         var propertyName = foreignTable.FindFreePropertyName(table.ExplorerItem.Text);
+         // use the table's name as property name (plus constraint name)
+         var propertyName = $"{table.Name} ({constraintName})";
          foreignTable.PropertyAndFieldNames.Add(propertyName);
 
          // create a property in the foreign key's target table
@@ -37,22 +37,22 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.SetGetMethod(propertyGetter);
 
          // add the 'AssociationAttribute' to the property
-         property.AddAssociationAttribute(primaryKeyName, foreignKeyName, table.Name);
+         property.AddAssociationAttribute(foreignColumnNames, columnNames, table.Name);
 
          // create the explorer item
-         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany);
+         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.CollectionLink, ExplorerIcon.OneToMany) { HyperlinkTarget = table.ExplorerItem };
          foreignTable.ExplorerItem.Children.Add(explorerItem);
 
          // create 'backward' association
-         table.CreateManyToOneAssociation(foreignTable, primaryKeyName, foreignKeyName, true);
+         table.CreateManyToOneAssociation(foreignTable, foreignColumnNames, columnNames, constraintName, true);
 
          return propertyName;
       }
 
-      public static string CreateManyToOneAssociation(this TableData table, TableData foreignTable, string primaryKeyName, string foreignKeyName, bool backwardReference = false)
+      public static string CreateManyToOneAssociation(this TableData table, TableData foreignTable, string columnNames, string foreignColumnNames, string constraintName, bool backwardReference = false)
       {
-         // use the foreign table's type name as property name
-         var propertyName = table.FindFreePropertyName(foreignTable.TypeBuilder.Name);
+         // use the foreign table's name as property name (plus constraint name)
+         var propertyName = $"{foreignTable.Name} ({constraintName})";
          table.PropertyAndFieldNames.Add(propertyName);
 
          // create a property of the foreign table's type in the table entity
@@ -76,15 +76,16 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
          property.SetGetMethod(propertyGetter);
 
          // add the 'AssociationAttribute' to the property
-         property.AddAssociationAttribute(foreignKeyName, primaryKeyName, foreignTable.Name, true);
+         property.AddAssociationAttribute(foreignColumnNames, columnNames, foreignTable.Name, backwardReference);
 
          // create the explorer item
-         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne);
+         var explorerItem = new ExplorerItem(propertyName, ExplorerItemKind.ReferenceLink, ExplorerIcon.ManyToOne) { HyperlinkTarget = foreignTable.ExplorerItem };
          table.ExplorerItem.Children.Add(explorerItem);
 
          return property.Name;
       }
 
+      /*
       public static string FindFreePropertyName(this TableData tableData, string propertyName)
       {
          var originalPropertyName = propertyName;
@@ -98,5 +99,6 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
 
          return propertyName;
       }
+      */
    }
 }
