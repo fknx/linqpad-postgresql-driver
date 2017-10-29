@@ -10,6 +10,7 @@ using System.Reflection.Emit;
 using System.IO;
 using LinqToDB.Data;
 using System.Data;
+using DynamicLinqPadPostgreSqlDriver.DDL;
 using DynamicLinqPadPostgreSqlDriver.Extensions;
 using DynamicLinqPadPostgreSqlDriver.UI;
 using DynamicLinqPadPostgreSqlDriver.Shared.Extensions;
@@ -38,7 +39,8 @@ namespace DynamicLinqPadPostgreSqlDriver
          var connectionString = cxInfo.GetPostgreSqlConnectionString();
 
          var connection = new NpgsqlConnection(connectionString);
-         return connection;
+         
+         return new DbConnectionProxy(connection);
       }
 
       public override IEnumerable<string> GetAssembliesToAdd(IConnectionInfo cxInfo)

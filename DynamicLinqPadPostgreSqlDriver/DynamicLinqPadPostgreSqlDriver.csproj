@@ -92,6 +92,15 @@
     </Compile>
     <Compile Include="DatabaseObjectProviderManager.cs" />
     <Compile Include="DbTypeData.cs" />
+    <Compile Include="DDL\DbCommandProxy.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DDL\DbConnectionProxy.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="DDL\CommandTextInterceptor.cs" />
+    <Compile Include="DDL\DbProviderFactoryProxy.cs" />
+    <Compile Include="Extensions\ExplorerItemExtensions.cs" />    
     <Compile Include="Extensions\IConnectionInfoExtensions.cs" />
     <Compile Include="Extensions\IDbConnectionExtensions.cs" />
     <Compile Include="Extensions\ILGeneratorExtensions.cs" />
