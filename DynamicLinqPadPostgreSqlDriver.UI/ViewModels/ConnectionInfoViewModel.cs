@@ -188,6 +188,21 @@ namespace DynamicLinqPadPostgreSqlDriver.UI.ViewModels
          }
       }
 
+      private string _schemas;
+
+      public string Schemas
+      {
+         get { return _schemas; }
+         set
+         {
+            if (Equals(_schemas, value))
+               return;
+
+            _schemas = value;
+            OnPropertyChanged(nameof(Schemas));
+         }
+      }
+
       private bool _canSave;
 
       public bool CanSave
@@ -302,6 +317,7 @@ namespace DynamicLinqPadPostgreSqlDriver.UI.ViewModels
          _singularizeEntityNames = driverData.GetDescendantValue(DriverOption.SingularizeEntityNames, Convert.ToBoolean, true);
          _capitalizePropertiesTablesAndColumns = driverData.GetDescendantValue(DriverOption.CapitalizePropertiesTablesAndColumns, Convert.ToBoolean, true);
          _useAdvancedDataTypes = driverData.GetDescendantValue(DriverOption.UseExperimentalTypes, Convert.ToBoolean, false);
+         _schemas = driverData.GetDescendantValue(DriverOption.Schemas, Convert.ToString, "public");
       }
 
       private void SetDriverData(XElement driverData)
@@ -322,6 +338,10 @@ namespace DynamicLinqPadPostgreSqlDriver.UI.ViewModels
 
          xElement = new XElement(DriverOption.UseExperimentalTypes.ToString());
          xElement.Value = UseAdvancedDataTypes.ToString(CultureInfo.InvariantCulture);
+         driverData.Add(xElement);
+         
+         xElement = new XElement(DriverOption.Schemas.ToString());
+         xElement.Value = Schemas;
          driverData.Add(xElement);
       }
 

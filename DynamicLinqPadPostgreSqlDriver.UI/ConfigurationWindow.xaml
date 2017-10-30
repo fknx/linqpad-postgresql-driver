@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI"
         xmlns:ViewModels="clr-namespace:DynamicLinqPadPostgreSqlDriver.UI.ViewModels" x:Class="DynamicLinqPadPostgreSqlDriver.UI.ConfigurationWindow"
         mc:Ignorable="d"
-        x:ClassModifier="internal" Title="PostgreSQL Connection" Height="470" Width="550"
+        x:ClassModifier="internal" Title="PostgreSQL Connection" Height="550" Width="550"
         xmlns:xc="clr-namespace:ExCastle.Wpf" xc:DialogCloser.DialogResult="{Binding DialogResult}" WindowStartupLocation="CenterScreen">
    <Window.DataContext>
       <ViewModels:ConnectionInfoViewModel/>
@@ -54,7 +54,7 @@
          <TextBox x:Name="databaseTextBox" TextWrapping="Wrap" Text="{Binding Database, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Margin="5,0,10,0" Grid.Row="5" d:LayoutOverrides="Height" VerticalAlignment="Center" IsEnabled="{Binding UseConnectionInfo}" TabIndex="5"/>
       </Grid>
       <Button x:Name="testConnectionButton" Content="_Test Connection" Margin="10,5,5,10" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Left" IsEnabled="{Binding CanSave}" Command="{Binding TestConnectionCommand, Mode=OneWay}" Height="24" Width="100" TabIndex="11"/>
-      <Grid Grid.Row="1" Grid.ColumnSpan="3">
+      <Grid Grid.Row="1" Grid.ColumnSpan="3" VerticalAlignment="Top">
          <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -73,5 +73,7 @@
          <CheckBox x:Name="capitalizePropertyNamesCheckBox" Content="Capitalize properties, tables and columns" HorizontalAlignment="Left" Margin="35,2,0,2" Grid.Row="3" d:LayoutOverrides="Height" VerticalAlignment="Center" Grid.ColumnSpan="2" IsChecked="{Binding CapitalizePropertiesTablesAndColumns}" TabIndex="10"/>
          <CheckBox x:Name="useAdvancedDataTypesCheckBox" Content="Use experimental data types" HorizontalAlignment="Left" Margin="35,1.999,-0.302,2" Grid.Row="4" VerticalAlignment="Center" IsChecked="{Binding UseAdvancedDataTypes}" TabIndex="10"/>
       </Grid>
-   </Grid>
+        <Label Content="Schemas (comma separated, leave empty to show all)" Margin="10,0,0,32" Grid.Row="1" VerticalAlignment="Bottom" d:LayoutOverrides="Width" Grid.ColumnSpan="2"/>
+        <TextBox Margin="35,0,10,13" Grid.Row="1" TextWrapping="Wrap" Text="{Binding Schemas}" VerticalAlignment="Bottom" Grid.ColumnSpan="3"/>
+    </Grid>
 </Window>
