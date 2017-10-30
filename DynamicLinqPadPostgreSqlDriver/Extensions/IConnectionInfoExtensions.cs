@@ -2,6 +2,8 @@
 using DynamicLinqPadPostgreSqlDriver.Shared.Extensions;
 using LINQPad.Extensibility.DataContext;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DynamicLinqPadPostgreSqlDriver.Extensions
 {
@@ -51,5 +53,17 @@ namespace DynamicLinqPadPostgreSqlDriver.Extensions
       {
          return cxInfo.DriverData.GetDescendantValue(DriverOption.UseExperimentalTypes, Convert.ToBoolean, false);
       }
+
+      public static ISet<string> GetSchemas(this IConnectionInfo cxInfo)
+      {
+         var commaSeparatedSchemes = 
+            cxInfo.DriverData.GetDescendantValue(DriverOption.Schemas, Convert.ToString, "public");
+
+         if (string.IsNullOrWhiteSpace(commaSeparatedSchemes))
+            return new HashSet<string>();
+
+         return new HashSet<string>(commaSeparatedSchemes.Split(',').Select(s => s.Trim().ToLower())
+            .Where(s => !string.IsNullOrEmpty(s)));
+      } 
    }
 }

@@ -5,6 +5,7 @@
       PluralizeSetAndTableProperties,
       SingularizeEntityNames,
       CapitalizePropertiesTablesAndColumns,
-      UseExperimentalTypes
+      UseExperimentalTypes,
+      Schemas
    }
 }

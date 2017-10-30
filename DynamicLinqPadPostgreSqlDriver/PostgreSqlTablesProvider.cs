@@ -12,10 +12,10 @@ namespace DynamicLinqPadPostgreSqlDriver
 {
    internal class PostgreSqlTablesProvider : IDatabaseObjectProvider
    {
-      private readonly IConnectionInfo cxInfo;
-      private readonly ModuleBuilder moduleBuilder;
-      private readonly IDbConnection connection;
-      private readonly string nameSpace;
+      private readonly IConnectionInfo _cxInfo;
+      private readonly ModuleBuilder _moduleBuilder;
+      private readonly IDbConnection _connection;
+      private readonly string _nameSpace;
 
       /// <summary>
       /// Tables should appear first in Explorer view
@@ -24,69 +24,87 @@ namespace DynamicLinqPadPostgreSqlDriver
 
       public PostgreSqlTablesProvider(IConnectionInfo cxInfo, ModuleBuilder moduleBuilder, IDbConnection connection, string nameSpace)
       {
-         this.cxInfo = cxInfo;
-         this.moduleBuilder = moduleBuilder;
-         this.connection = connection;
-         this.nameSpace = nameSpace;
+         _cxInfo = cxInfo;
+         _moduleBuilder = moduleBuilder;
+         _connection = connection;
+         _nameSpace = nameSpace;
       }
 
       public ExplorerItem EmitCodeAndGetExplorerItemTree(TypeBuilder dataContextTypeBuilder)
       {
          var query = SqlHelper.LoadSql("QueryTables.sql");
-         var tables = connection.Query(query);
+         var tables = _connection.Query(query);
 
-         var schemaExplorerItems = new List<ExplorerItem>();
+         //  The explorer items below the "Tables" explorer items can be either the
+         // schemas or directly the tables, if only one schema is available (or selected).
+         var rootExplorerItems = new List<ExplorerItem>();
 
-         foreach (var catalogGroup in tables.GroupBy(t => t.TableCatalog))
+         var schemas = _cxInfo.GetSchemas();
+
+         var schemaGroups = schemas.Any()
+            ? tables.GroupBy(t => t.TableSchema).Where(g => schemas.Contains(((string)g.Key).ToLower())).ToArray()
+            : tables.GroupBy(t => t.TableSchema).ToArray();
+
+         // If there is only one schema, then the schema explorer item can be skipped and
+         // it is not required to add the schema to the table name.
+         var onlyOneSchema = schemaGroups.Length == 1;
+
+         foreach (var schemaGroup in schemaGroups)
          {
-            var databaseName = catalogGroup.Key; // (always the current database specified in connection string)
+            var tableExplorerItems = new List<ExplorerItem>();
+            var preparedTables = new List<TableData>();
 
-            foreach (var schemaGroup in catalogGroup.GroupBy(t => t.TableSchema))
+            foreach (var table in schemaGroup.OrderBy(t => t.TableName))
             {
-               var tableExplorerItems = new List<ExplorerItem>();
-               var preparedTables = new List<TableData>();
+               var unmodifiedTableName = (string) table.TableName;
+               var unmodifiedTableSchema = (string) table.TableSchema;
 
-               foreach (var table in schemaGroup.OrderBy(t => t.TableName))
-               {
-                  var unmodifiedTableName = (string)table.TableName;
-                  var unmodifiedTableSchema = (string)table.TableSchema;
-                  var tableName = cxInfo.GetTableName(unmodifiedTableSchema + "_" + unmodifiedTableName);
+               var tableName = onlyOneSchema
+                  ? _cxInfo.GetTableName(unmodifiedTableName)
+                  : _cxInfo.GetTableName(unmodifiedTableSchema + "_" + unmodifiedTableName);
 
-                  var explorerItem = new ExplorerItem(tableName, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
-                  {
-                     IsEnumerable = true,
-                     Children = new List<ExplorerItem>(),
-                     DragText = tableName,
-                     SqlName = $"\"{unmodifiedTableSchema}.{unmodifiedTableName}\""
-                  };
-
-                  var tableData = PrepareTableEntity(cxInfo, moduleBuilder, connection, nameSpace, databaseName, unmodifiedTableSchema, unmodifiedTableName, explorerItem);
-                  preparedTables.Add(tableData);
-               }
-
-               // build the associations before the types are created
-               BuildAssociations(connection, schemaGroup.Key, preparedTables);
-
-               foreach (var tableData in preparedTables)
-               {
-                  dataContextTypeBuilder.CreateAndAddType(tableData);
-                  tableExplorerItems.Add(tableData.ExplorerItem);
-               }
-
-               var schemaExplorerItem = new ExplorerItem(schemaGroup.Key, ExplorerItemKind.Category, ExplorerIcon.Schema)
+               var explorerItem = new ExplorerItem(tableName, ExplorerItemKind.QueryableObject, ExplorerIcon.Table)
                {
                   IsEnumerable = true,
-                  Children = tableExplorerItems
+                  Children = new List<ExplorerItem>(),
+                  DragText = tableName,
+                  SqlName = $"{unmodifiedTableSchema}.{unmodifiedTableName}"
                };
 
-               schemaExplorerItems.Add(schemaExplorerItem);
+               var tableData = PrepareTableEntity(_cxInfo, _moduleBuilder, _connection, _nameSpace, table.TableCatalog,
+                  unmodifiedTableSchema, unmodifiedTableName, explorerItem);
+               
+               preparedTables.Add(tableData);
             }
+
+            // build the associations before the types are created
+            BuildAssociations(_connection, schemaGroup.Key, preparedTables);
+
+            foreach (var tableData in preparedTables)
+            {
+               dataContextTypeBuilder.CreateAndAddType(tableData);
+               tableExplorerItems.Add(tableData.ExplorerItem);
+            }
+
+            if (onlyOneSchema)
+            {
+               rootExplorerItems.AddRange(tableExplorerItems);
+               continue;
+            }
+
+            var schemaExplorerItem = new ExplorerItem(schemaGroup.Key, ExplorerItemKind.Category, ExplorerIcon.Schema)
+            {
+               IsEnumerable = true,
+               Children = tableExplorerItems
+            };
+
+            rootExplorerItems.Add(schemaExplorerItem);
          }
 
          return new ExplorerItem("Tables", ExplorerItemKind.Category, ExplorerIcon.Table)
          {
             IsEnumerable = true,
-            Children = schemaExplorerItems
+            Children = rootExplorerItems
          };
       }
 

@@ -2,5 +2,6 @@ obj/
 bin/
 packages/
 .vs/
+.idea/
 *.suo
 *.user
