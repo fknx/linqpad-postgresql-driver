@@ -51,7 +51,9 @@ namespace DynamicLinqPadPostgreSqlDriver
          if (mappedReturnType == null)
          {
             var userTypeName = cxInfo.GetTypeName(func.ReturnType);
-            mappedReturnType = moduleBuilder.GetType($"{nameSpace}.{userTypeName}");
+            
+            // ToDo | add schema support for functions
+            mappedReturnType = moduleBuilder.GetType($"{nameSpace}.public.{userTypeName}");
 
             if (mappedReturnType != null)
             {
