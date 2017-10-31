@@ -118,7 +118,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
       {
          var createdAssembly = Assembly.Load(asmName);
          var dcType = createdAssembly.GetType($"{NameSpace}.{TypeName}");
-         var dc = Activator.CreateInstance(dcType, DatabaseFixture.ProviderName, DatabaseFixture.ConnectionString);
+         var dc = Activator.CreateInstance(dcType, DatabaseFixture.DataProvider, DatabaseFixture.ConnectionString);
          return (TypedDataContextBase)dc;
       }
 

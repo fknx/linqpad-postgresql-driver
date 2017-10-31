@@ -3,5 +3,6 @@ bin/
 packages/
 .vs/
 .idea/
+.tools/
 *.suo
 *.user

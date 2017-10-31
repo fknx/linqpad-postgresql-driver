@@ -1,18 +1,16 @@
 ﻿using LINQPad.Extensibility.DataContext;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Npgsql;
-using Dapper;
 using System.Threading;
 using System.Reflection.Emit;
 using System.IO;
-using LinqToDB.Data;
 using System.Data;
-using DynamicLinqPadPostgreSqlDriver.Extensions;
 using DynamicLinqPadPostgreSqlDriver.UI;
 using DynamicLinqPadPostgreSqlDriver.Shared.Extensions;
+using LinqToDB.DataProvider;
+using LinqToDB.DataProvider.PostgreSQL;
 
 namespace DynamicLinqPadPostgreSqlDriver
 {
@@ -62,15 +60,15 @@ namespace DynamicLinqPadPostgreSqlDriver
 
       public override ParameterDescriptor[] GetContextConstructorParameters(IConnectionInfo cxInfo)
       {
-         var providerNameParameter = new ParameterDescriptor("providerName", "System.String");
+         var dataProviderParameter = new ParameterDescriptor("dataProvider", "LinqToDB.DataProvider.IDataProvider");
          var connectionStringParameter = new ParameterDescriptor("connectionString", "System.String");
 
-         return new[] { providerNameParameter, connectionStringParameter };
+         return new[] { dataProviderParameter, connectionStringParameter };
       }
 
       public override object[] GetContextConstructorArguments(IConnectionInfo cxInfo)
       {
-         return new object[] { "PostgreSQL", cxInfo.GetPostgreSqlConnectionString() };
+         return new object[] { new PostgreSQLDataProvider(), cxInfo.GetPostgreSqlConnectionString() };
       }
 
       public override List<ExplorerItem> GetSchemaAndBuildAssembly(IConnectionInfo cxInfo, AssemblyName assemblyToBuild, ref string nameSpace, ref string typeName)
@@ -97,10 +95,10 @@ namespace DynamicLinqPadPostgreSqlDriver
          }
 
          // fetch the base constructor which shall be called by the new constructor
-         var baseConstructor = typeof(TypedDataContextBase).GetConstructor(new[] { typeof(string), typeof(string) });
+         var baseConstructor = typeof(TypedDataContextBase).GetConstructor(new[] { typeof(IDataProvider), typeof(string) });
 
          // create the typed data context's constructor
-         var dataContextConstructor = dataContextTypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[] { typeof(string), typeof(string) });
+         var dataContextConstructor = dataContextTypeBuilder.DefineConstructor(MethodAttributes.Public, CallingConventions.Standard, new[] { typeof(IDataProvider), typeof(string) });
          var ilGenerator = dataContextConstructor.GetILGenerator();
 
          ilGenerator.Emit(OpCodes.Ldarg_0);

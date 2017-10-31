@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Data;
 using Dapper;
+using LinqToDB.DataProvider;
+using LinqToDB.DataProvider.PostgreSQL;
 using Npgsql;
 
 namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
 {
    public class DatabaseFixture : IDisposable
    {
-      public const string ProviderName = "PostgreSQL";
+      public static readonly IDataProvider DataProvider = new PostgreSQLDataProvider();
       public const string ConnectionString = "Server=localhost;Port=5432;Database=TestDb_DynamicAssemblyGeneration;User Id=postgres;Password=Password12!;";
 
       public IDbConnection DBConnection { get; }

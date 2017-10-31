@@ -3,19 +3,20 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
+using LinqToDB.DataProvider;
 
 namespace DynamicLinqPadPostgreSqlDriver
 {
    public class TypedDataContextBase : DataConnection
    {
       private static Type _typedDataContextType;
-      private static string _providerName;
+      private static IDataProvider _dataProvider;
       private static string _connectionString;
 
-      public TypedDataContextBase(string providerName, string connectionString) : base(providerName, connectionString)
+      public TypedDataContextBase(IDataProvider dataProvider, string connectionString) : base(dataProvider, connectionString)
       {
          _typedDataContextType = GetType();
-         _providerName = providerName;
+         _dataProvider = dataProvider;
          _connectionString = connectionString;
       }
 
@@ -24,7 +25,7 @@ namespace DynamicLinqPadPostgreSqlDriver
          if (_typedDataContextType == null)
             return null;
 
-         return (TypedDataContextBase) Activator.CreateInstance(_typedDataContextType, _providerName, _connectionString);
+         return (TypedDataContextBase) Activator.CreateInstance(_typedDataContextType, _dataProvider, _connectionString);
       }
 
       protected Func<IDataReader, TTarget> GetMapper<TTarget>()
