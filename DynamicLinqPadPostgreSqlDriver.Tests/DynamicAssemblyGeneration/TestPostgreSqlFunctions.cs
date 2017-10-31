@@ -143,7 +143,7 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
 
          var result = ((IEnumerable<object>)dc.get_json()).ToList();
 
-         Assert.Equal(1, result.Count);
+         Assert.Single(result);
 
          dynamic record = result[0];
          Assert.Equal("[[1,5],[99,100]]", record.get_json);
