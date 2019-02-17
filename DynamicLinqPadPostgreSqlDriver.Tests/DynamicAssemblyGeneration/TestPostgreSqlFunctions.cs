@@ -111,21 +111,29 @@ namespace DynamicLinqPadPostgreSqlDriver.Tests.DynamicAssemblyGeneration
          dynamic dc = ArrangeDataContext(db =>
          {
             DBConnection.Execute("CREATE TYPE testtype AS (id int, name text, arrayprop integer[]);");
+            DBConnection.Execute("CREATE TYPE testtype_outer AS (param testtype);");
+            // Having 2 functions ensures that we correctly test for the existence of a previously created UDT
             DBConnection.Execute("CREATE FUNCTION public.echo_udt(testtype) RETURNS testtype AS 'SELECT $1' LANGUAGE SQL;");
+            DBConnection.Execute("CREATE FUNCTION public.echo_outer_udt(testtype_outer) RETURNS testtype_outer AS 'SELECT $1' LANGUAGE SQL;");
          });
 
          Type dcType = dc.GetType();
          var userDefinedType = dcType.Assembly.GetType(NameSpace + ".Testtype");
+         var outerType = dcType.Assembly.GetType(NameSpace + ".Testtype_Outer");
 
          Assert.NotNull(userDefinedType);
+         Assert.NotNull(outerType);
 
          dynamic customObj = Activator.CreateInstance(userDefinedType);
          customObj.Id = 1;
          customObj.Name = "1";
 
-         // verify function is found and has correct signature
-         var query = dc.echo_udt(customObj);
+         dynamic customObjOuter = Activator.CreateInstance(outerType);
+         customObjOuter.Param = customObj;
 
+         // verify function is found and has correct signature
+         var query = dc.echo_outer_udt(customObjOuter);
+         
          // Enumerating 'query' throws something like the following:
          // System.NotSupportedExceptionThis .NET type is not supported in Npgsql or your PostgreSQL: LINQPad.User.Testtype
          // So for now, user-defined types are recognized, but functions expecting them as parameters cannot be called via LINQPad.

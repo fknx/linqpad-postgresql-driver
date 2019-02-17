@@ -6,12 +6,14 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace DynamicLinqPadPostgreSqlDriver
 {
    public static class SqlHelper
    {
       private static readonly IDictionary<string, string> SqlCache = new Dictionary<string, string>();
+      private static readonly Regex typeLengthPattern = new Regex("([a-z0-9\\s]+)(\\([0-9]+\\))");
 
       public static string LoadSql(string name)
       {
@@ -36,12 +38,26 @@ namespace DynamicLinqPadPostgreSqlDriver
          }
       }
 
+      /// <summary>
+      /// Deal with mismatched cases and length specifications following the type name
+      /// </summary>
+      private static string SanitizeTypeName(string dbType)
+      {
+         var sanitizedTypeName = dbType.ToLowerInvariant();
+         var match = typeLengthPattern.Match(sanitizedTypeName);
+         if (match.Success)
+         {
+            sanitizedTypeName = match.Groups[1].Value.TrimEnd();
+         }
+         return sanitizedTypeName;
+      }
+
       public static Type MapDbTypeToType(string dbType, string udtName, bool nullable, bool useExperimentalTypes)
       {
          if (dbType == null)
             throw new ArgumentNullException(nameof(dbType));
 
-         dbType = dbType.ToLower();
+         dbType = SanitizeTypeName(dbType);
 
          // See the PostgreSQL datatypes as reference:
          //
