@@ -73,16 +73,23 @@ namespace DynamicLinqPadPostgreSqlDriver
          return funcReturnTypeInfo;
       }
 
-      private bool TryCreateUserDefinedType(string argType, out Type mappedArgType)
+      private bool TryGetOrCreateUserDefinedType(string argType, out Type mappedArgType)
       {
          bool isArray = argType.StartsWith("_");
          var pgTypeName = argType.TrimStart('_');
+         var typeName = $"{nameSpace}.{cxInfo.GetTypeName(pgTypeName)}";
+
+         mappedArgType = moduleBuilder.GetType(typeName);
+         if (mappedArgType != null)
+         {
+            return true;
+         }
+
          var udtAttributes = connection.Query(SqlHelper.LoadSql("QueryUdtAttributes.sql"), new { typname = pgTypeName }).ToList();
 
          mappedArgType = null;
          if (udtAttributes.Any())
-         {
-            var typeName = $"{nameSpace}.{cxInfo.GetTypeName(pgTypeName)}";
+         {            
             var typeBuilder = moduleBuilder.DefineType(typeName, TypeAttributes.Public);
 
             foreach (var attr in udtAttributes)
@@ -153,7 +160,7 @@ namespace DynamicLinqPadPostgreSqlDriver
 
             if (!TryMapToExistingType(argType, out mappedArgType))
             {
-               TryCreateUserDefinedType(argType, out mappedArgType);
+               TryGetOrCreateUserDefinedType(argType, out mappedArgType);
             }
 
             paramTypes.Add(new FunctionArgumentInfo { Index = i, Name = argName, Type = mappedArgType, DbTypeName = argType});
