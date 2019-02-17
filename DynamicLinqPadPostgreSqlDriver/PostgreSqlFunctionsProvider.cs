@@ -96,10 +96,13 @@ namespace DynamicLinqPadPostgreSqlDriver
             {
                var attrName = cxInfo.GetColumnName((string)attr.AttributeName);
                var attrTypeData = DbTypeData.FromString(attr.AttributeType);
-               var attrType = SqlHelper.MapDbTypeToType(attrTypeData.DbType, attrTypeData.UdtName, false, true);
+               Type attrType = SqlHelper.MapDbTypeToType(attrTypeData.DbType, attrTypeData.UdtName, false, true);
                if (attrType == null)
                {
-                  throw new InvalidOperationException("Unknown type: " + attr.AttributeType);
+                  if (!TryGetOrCreateUserDefinedType(attrTypeData.DbType, out attrType))
+                  {
+                     throw new InvalidOperationException("Unknown type: " + attr.AttributeType);
+                  }
                }
 
                typeBuilder.DefineField(attrName, attrType, FieldAttributes.Public);
